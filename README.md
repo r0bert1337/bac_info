@@ -49,7 +49,16 @@ Nu există build step, nu există dependențe de instalat. Aplicația rulează c
    cd bac_info
    ```
 
-2. **Verifică structura de fișiere** — asigură-te că folderul `sources/` se află în același director cu `bac_informatica.html` și conține fișierele PDF ale subiectelor.
+2. **Extrage arhiva cu subiecte** — dezarhivează `sources.zip` în același director cu `bac_informatica.html`. Folderul rezultat trebuie să se numească exact `sources`:
+   ```
+   bac_info/
+   ├── bac_informatica.html
+   ├── sources.zip
+   └── sources/          ← folderul extras din sources.zip
+       ├── 2018_vara.pdf
+       └── ...
+   ```
+   > **Important:** Numele folderului trebuie să fie `sources`, nu `sources (1)` sau altceva — aplicația îl referențiază cu această cale exactă.
 
 3. **Deschide aplicația** — deschide `bac_informatica.html` direct în browser (Chrome, Edge sau Firefox recomandat pentru suport `<embed>` PDF):
    ```
