@@ -155,7 +155,7 @@ Contribuțiile sunt binevenite, mai ales adăugarea de variante noi sau corectar
 ## Licență
 
 Distribuit sub licența [GNU GPL v3](https://www.gnu.org/licenses/gpl-3.0).
-Orice versiune derivată trebuie publicată tot sub GPL v3 — codul nu poate fi închis sau integrat în software proprietar.
+Orice versiune derivată trebuie publicată tot sub GPL v3 — codul poate fi distribuit, folosit dar nu poate fi closed-source sau integrat în software proprietar.
 
 ---
 
