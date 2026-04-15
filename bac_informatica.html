@@ -1,0 +1,1978 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BAC Informatică — Jurnal de pregătire</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    /* ================================================================
+       CSS VARIABLES
+    ================================================================ */
+    :root {
+      --bg:           #0b0b10;
+      --surface:      #13131e;
+      --surface2:     #1c1c2a;
+      --border:       #252538;
+      --accent:       #6c63ff;
+      --accent-glow:  rgba(108,99,255,0.18);
+      --flag-q:       #f0a500;
+      --flag-q-glow:  rgba(240,165,0,0.2);
+      --flag-ai:      #3ecfb2;
+      --flag-ai-glow: rgba(62,207,178,0.2);
+      --green:        #4caf7d;
+      --green-glow:   rgba(76,175,125,0.2);
+      --text:         #e8e8f2;
+      --text-muted:   #7070a0;
+      --text-dim:     #3a3a5c;
+      --radius:       8px;
+    }
+
+    /* ================================================================
+       RESET & BASE
+    ================================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Noise grain — SVG fractalNoise at 3% opacity for depth */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* ================================================================
+       LAYOUT
+    ================================================================ */
+    .app {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 36px 24px 100px;
+    }
+
+    /* ================================================================
+       HEADER
+    ================================================================ */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 44px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 24px;
+      color: var(--text);
+      letter-spacing: -0.5px;
+      line-height: 1;
+      margin-bottom: 7px;
+    }
+
+    .header-sub {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .header-status {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--flag-ai);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex-shrink: 0;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--flag-ai);
+      flex-shrink: 0;
+      animation: pulse 2.2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1;   transform: scale(1);    }
+      50%       { opacity: 0.4; transform: scale(0.72); }
+    }
+
+    /* ================================================================
+       YEAR ACCORDION
+    ================================================================ */
+    .year-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 28px;
+    }
+
+    .year-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid transparent;
+      border-radius: var(--radius);
+      cursor: pointer;
+      user-select: none;
+      transition: background 240ms ease, border-left-color 240ms ease,
+                  border-color 240ms ease, border-radius 240ms ease;
+    }
+
+    .year-header:hover          { background: var(--surface2); }
+    .year-header.open           { border-left-color: var(--accent);
+                                  border-radius: var(--radius) var(--radius) 0 0;
+                                  border-bottom-color: transparent; }
+
+    .year-header-left {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+    }
+
+    .year-label {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 28px;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .year-count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .year-header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .year-chevron {
+      font-size: 11px;
+      color: var(--text-muted);
+      transition: transform 260ms ease;
+      line-height: 1;
+    }
+
+    .year-header.open .year-chevron { transform: rotate(90deg); }
+
+    /* Collapsible body — pure CSS max-height transition */
+    .year-body {
+      max-height: 0;
+      overflow: hidden;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-left: 3px solid transparent;
+      border-radius: 0 0 var(--radius) var(--radius);
+      transition: max-height 280ms ease, border-left-color 280ms ease;
+    }
+
+    .year-body.open {
+      max-height: 800px;
+      border-left-color: var(--accent);
+    }
+
+    .year-body-inner {
+      padding: 14px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    /* ================================================================
+       VARIANT PILL BUTTONS
+    ================================================================ */
+    .variant-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      cursor: pointer;
+      transition: all 150ms ease;
+      white-space: nowrap;
+    }
+
+    .variant-pill:hover:not(.active) {
+      border-color: var(--accent);
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+
+    .variant-pill.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-glow);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    /* Done state — green tint border, kept even when active */
+    .variant-pill.done {
+      border-color: rgba(76, 175, 125, 0.4);
+    }
+
+    .variant-pill.done.active {
+      border-color: var(--accent); /* accent wins when selected */
+    }
+
+    .pill-done-dot {
+      color: var(--green);
+      margin-right: 5px;
+      font-size: 9px;
+    }
+
+    /* ================================================================
+       VARIANT PANEL
+    ================================================================ */
+    #variant-panel {
+      display: none;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 200ms ease, transform 200ms ease;
+    }
+
+    #variant-panel.visible { display: block; }
+    #variant-panel.shown   { opacity: 1; transform: translateY(0); }
+
+    /* Panel header row */
+    .panel-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      gap: 12px;
+    }
+
+    .panel-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 22px;
+      color: var(--text);
+      line-height: 1.25;
+    }
+
+    .panel-title .panel-yr {
+      font-weight: 400;
+      font-size: 16px;
+      color: var(--text-muted);
+      margin-left: 10px;
+    }
+
+    .btn-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text-muted);
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 150ms ease;
+      flex-shrink: 0;
+    }
+
+    .btn-close:hover {
+      border-color: var(--text-muted);
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+
+    /* ================================================================
+       CONTENT SECTIONS
+    ================================================================ */
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--text);
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--accent);
+      width: fit-content;
+      margin-bottom: 16px;
+    }
+
+    /* ================================================================
+       PDF VIEWER
+    ================================================================ */
+    .pdf-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      gap: 10px;
+    }
+
+    .pdf-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .barem-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--flag-ai);
+      text-decoration: none;
+      padding: 8px 20px;
+      border-radius: 20px;
+      border: 1px solid rgba(62,207,178,0.45);
+      background: var(--flag-ai-glow);
+      transition: all 150ms ease;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    .barem-link:hover {
+      border-color: var(--flag-ai);
+      box-shadow: 0 0 12px var(--flag-ai-glow);
+      transform: translateY(-1px);
+    }
+
+    .barem-link-sub {
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+
+    .pdf-embed {
+      width: 100%;
+      height: 620px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      display: block;
+    }
+
+    /* ================================================================
+       SUBIECTUL I — exercise rows
+    ================================================================ */
+    .exercise-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .exercise-row.last-row { border-bottom: none; }
+
+    .ex-label {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: 13px;
+      color: var(--text-muted);
+      min-width: 48px;
+      flex-shrink: 0;
+    }
+
+    .mcq-group { display: flex; gap: 6px; }
+
+    /* MCQ custom buttons — NEVER native radio */
+    .btn-mcq {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 500;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 150ms ease;
+      flex-shrink: 0;
+    }
+
+    .btn-mcq:hover:not(.selected) {
+      border-color: var(--text-muted);
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+
+    .btn-mcq.selected {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    /* Flag buttons [?] and [AI] — independent toggles */
+    .flag-group {
+      display: flex;
+      gap: 6px;
+      margin-left: 4px;
+    }
+
+    .btn-flag {
+      height: 28px;
+      padding: 0 7px;
+      min-width: 28px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 500;
+      font-size: 11px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 150ms ease;
+      flex-shrink: 0;
+    }
+
+    .btn-flag:hover:not(.active) {
+      border-color: var(--text-dim);
+      color: var(--text-muted);
+      transform: translateY(-1px);
+    }
+
+    .btn-flag.flag-q.active  {
+      background: var(--flag-q-glow);
+      border-color: var(--flag-q);
+      color: var(--flag-q);
+      box-shadow: 0 0 8px var(--flag-q-glow);
+    }
+
+    .btn-flag.flag-ai.active {
+      background: var(--flag-ai-glow);
+      border-color: var(--flag-ai);
+      color: var(--flag-ai);
+      box-shadow: 0 0 8px var(--flag-ai-glow);
+    }
+
+    /* ================================================================
+       TEXTAREAS
+    ================================================================ */
+    .notes-label {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--text-muted);
+      display: block;
+      margin-top: 16px;
+      margin-bottom: 8px;
+    }
+
+    textarea {
+      width: 100%;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      min-height: 80px;
+      resize: vertical;
+      outline: none;
+      transition: border-color 150ms ease;
+      line-height: 1.65;
+    }
+
+    textarea:focus        { border-color: var(--accent); }
+    textarea::placeholder { color: var(--text-dim); }
+
+    /* Code font textareas — Sub II & III */
+    .code-area {
+      font-family: 'JetBrains Mono', monospace !important;
+      font-size: 13px;
+      background: #080810 !important;
+      min-height: 140px;
+      line-height: 1.75;
+    }
+
+    .code-area-lg {
+      font-family: 'JetBrains Mono', monospace !important;
+      font-size: 13px;
+      background: #080810 !important;
+      min-height: 220px;
+      line-height: 1.75;
+    }
+
+    /* ================================================================
+       SUBIECTUL II — exercise blocks
+    ================================================================ */
+    .exercise-block          { margin-bottom: 18px; }
+    .exercise-block:last-child { margin-bottom: 0; }
+
+    .exercise-block-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .exercise-block-title {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    /* ================================================================
+       SUBIECTUL III
+    ================================================================ */
+    .s3-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .s3-label {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    /* ================================================================
+       NOTIȚE GENERALE — distinct background
+    ================================================================ */
+    .section.gen-notes {
+      background: rgba(108,99,255,0.04);
+      border-color: rgba(108,99,255,0.2);
+    }
+
+    .gen-notes-sub {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: -8px;
+      margin-bottom: 14px;
+    }
+
+    .gen-notes textarea {
+      font-size: 14px;
+      min-height: 130px;
+    }
+
+    /* ================================================================
+       TERMINAT BUTTON
+    ================================================================ */
+    .terminat-wrap {
+      display: flex;
+      justify-content: center;
+      margin-top: 8px;
+      margin-bottom: 24px;
+    }
+
+    .btn-terminat {
+      padding: 10px 28px;
+      border-radius: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 250ms ease;
+    }
+
+    .btn-terminat:hover:not(.done) {
+      border-color: var(--green);
+      color: var(--green);
+      transform: translateY(-1px);
+    }
+
+    .btn-terminat.done {
+      background: var(--green);
+      border-color: var(--green);
+      color: #fff;
+      box-shadow: 0 0 16px var(--green-glow);
+      transform: scale(1.03);
+    }
+
+    /* ================================================================
+       PROFILE WIDGET
+    ================================================================ */
+    #profile-widget {
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    #profile-trigger {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 11px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      user-select: none;
+      transition: border-color 150ms ease, background 150ms ease;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--text);
+      max-width: 180px;
+    }
+
+    #profile-trigger:hover { border-color: var(--accent); background: var(--surface); }
+
+    #profile-avatar {
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+
+    #profile-name-display {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 500;
+      font-size: 13px;
+    }
+
+    .profile-chevron {
+      font-size: 11px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      transition: transform 200ms ease;
+    }
+
+    #profile-widget.open .profile-chevron { transform: rotate(180deg); }
+
+    #profile-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      min-width: 220px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      z-index: 100;
+      overflow: hidden;
+    }
+
+    #profile-widget.open #profile-dropdown { display: block; }
+
+    #profile-list {
+      max-height: 200px;
+      overflow-y: auto;
+      padding: 6px 0;
+    }
+
+    .profile-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      cursor: pointer;
+      transition: background 120ms ease;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--text);
+      gap: 8px;
+    }
+
+    .profile-item:hover { background: var(--surface2); }
+
+    .profile-item.active {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .profile-item-name {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .profile-item-check {
+      font-size: 11px;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .profile-item-del {
+      font-size: 11px;
+      color: var(--text-dim);
+      flex-shrink: 0;
+      padding: 2px 4px;
+      border-radius: 4px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      transition: color 120ms ease;
+      line-height: 1;
+    }
+
+    .profile-item-del:hover { color: #e05555; }
+
+    .profile-item-ren {
+      font-size: 11px;
+      color: var(--text-dim);
+      flex-shrink: 0;
+      padding: 2px 4px;
+      border-radius: 4px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      transition: color 120ms ease;
+      line-height: 1;
+    }
+
+    .profile-item-ren:hover { color: var(--accent); }
+
+    .profile-dropdown-sep {
+      height: 1px;
+      background: var(--border);
+      margin: 4px 0;
+    }
+
+    .profile-actions {
+      display: flex;
+      flex-direction: column;
+      padding: 6px;
+      gap: 4px;
+    }
+
+    .profile-action-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 10px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+      text-align: left;
+    }
+
+    .profile-action-btn:hover {
+      background: var(--surface2);
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    #profile-new-name-wrap,
+    #profile-ren-name-wrap {
+      display: none;
+      padding: 6px;
+      border-top: 1px solid var(--border);
+    }
+
+    #profile-new-name-wrap.visible,
+    #profile-ren-name-wrap.visible { display: flex; gap: 6px; }
+
+    #profile-new-name-input,
+    #profile-ren-name-input {
+      flex: 1;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 9px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 150ms ease;
+    }
+
+    #profile-new-name-input:focus,
+    #profile-ren-name-input:focus { border-color: var(--accent); }
+
+    #profile-new-confirm {
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      cursor: pointer;
+      transition: opacity 150ms ease;
+      flex-shrink: 0;
+    }
+
+    #profile-new-confirm:hover,
+    #profile-ren-confirm:hover { opacity: 0.85; }
+
+    #profile-ren-confirm {
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      cursor: pointer;
+      transition: opacity 150ms ease;
+      flex-shrink: 0;
+    }
+
+    /* ================================================================
+       PROFILE MERGE UI
+    ================================================================ */
+    #profile-merge-wrap {
+      display: none;
+      padding: 6px;
+      border-top: 1px solid var(--border);
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    #profile-merge-wrap.visible { display: flex; }
+
+    .profile-merge-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .profile-merge-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .profile-merge-select {
+      flex: 1;
+      min-width: 0;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 150ms ease;
+    }
+
+    .profile-merge-select:focus { border-color: var(--accent); }
+
+    #profile-merge-confirm {
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      cursor: pointer;
+      transition: opacity 150ms ease;
+      flex-shrink: 0;
+    }
+
+    #profile-merge-confirm:hover { opacity: 0.85; }
+  </style>
+</head>
+<body>
+
+  <div class="app">
+
+    <!-- HEADER -->
+    <header>
+      <!-- Profile Widget — top-left -->
+      <div id="profile-widget">
+        <div id="profile-trigger" title="Schimbă profilul">
+          <span id="profile-avatar">👤</span>
+          <span id="profile-name-display">…</span>
+          <span class="profile-chevron">▾</span>
+        </div>
+        <div id="profile-dropdown">
+          <div id="profile-list"></div>
+          <div class="profile-dropdown-sep"></div>
+          <div class="profile-actions">
+            <button class="profile-action-btn" id="btn-new-profile">＋ Profil nou</button>
+            <button class="profile-action-btn" id="btn-import-profile">⬆ Import profil (.json)</button>
+            <button class="profile-action-btn" id="btn-export-profile">⬇ Export profil (.json)</button>
+            <button class="profile-action-btn" id="btn-merge-profiles">⇔ Combină profiluri</button>
+          </div>
+          <div id="profile-new-name-wrap">
+            <input id="profile-new-name-input" type="text" placeholder="Nume profil…" maxlength="40">
+            <button id="profile-new-confirm">OK</button>
+          </div>
+          <div id="profile-ren-name-wrap">
+            <input id="profile-ren-name-input" type="text" placeholder="Nume nou…" maxlength="40">
+            <button id="profile-ren-confirm">OK</button>
+          </div>
+          <div id="profile-merge-wrap">
+            <span class="profile-merge-label">Primar (prioritate) · Secundar (completare lipsuri)</span>
+            <div class="profile-merge-row">
+              <select id="profile-merge-primary" class="profile-merge-select"></select>
+              <select id="profile-merge-secondary" class="profile-merge-select"></select>
+              <button id="profile-merge-confirm">OK</button>
+            </div>
+          </div>
+        </div>
+        <input type="file" id="profile-file-input" accept=".json" style="display:none">
+      </div>
+
+      <div>
+        <div class="header-title">BAC Informatică</div>
+        <div class="header-sub">Jurnal de pregătire · Mate-Info</div>
+      </div>
+      <div class="header-status">
+        <span class="pulse-dot"></span>
+        Salvat automat
+      </div>
+    </header>
+
+    <main>
+      <div id="year-list" class="year-list"></div>
+      <div id="variant-panel"></div>
+    </main>
+
+  </div>
+
+  <script>
+    /* ================================================================
+       1. DATA — exact variant list, do not modify
+    ================================================================ */
+    const DATA = [
+      { year: "MEC — 2020", items: [
+        { slug: "mec2020_test_1",  label: "Test 1 — Mate-Info" },
+        { slug: "mec2020_test_2",  label: "Test 2 — Mate-Info" },
+        { slug: "mec2020_test_3",  label: "Test 3 — Mate-Info" },
+        { slug: "mec2020_test_4",  label: "Test 4 — Mate-Info" },
+        { slug: "mec2020_test_5",  label: "Test 5 — Mate-Info" },
+        { slug: "mec2020_test_6",  label: "Test 6 — Mate-Info" },
+        { slug: "mec2020_test_7",  label: "Test 7 — Mate-Info" },
+        { slug: "mec2020_test_8",  label: "Test 8 — Mate-Info" },
+        { slug: "mec2020_test_9",  label: "Test 9 — Mate-Info" },
+        { slug: "mec2020_test_10", label: "Test 10 — Mate-Info" },
+        { slug: "mec2020_test_11", label: "Test 11 — Mate-Info" },
+        { slug: "mec2020_test_12", label: "Test 12 — Mate-Info" },
+        { slug: "mec2020_test_13", label: "Test 13 — Mate-Info" },
+        { slug: "mec2020_test_14", label: "Test 14 — Mate-Info" },
+        { slug: "mec2020_test_15", label: "Test 15 — Mate-Info" },
+        { slug: "mec2020_test_16", label: "Test 16 — Mate-Info" },
+        { slug: "mec2020_test_17", label: "Test 17 — Mate-Info" },
+        { slug: "mec2020_test_18", label: "Test 18 — Mate-Info" },
+        { slug: "mec2020_test_19", label: "Test 19 — Mate-Info" },
+        { slug: "mec2020_test_20", label: "Test 20 — Mate-Info" }
+      ]},
+      { year: 2026, items: [
+        { slug: "2026_modele", label: "Modele de subiecte" }
+      ]},
+      { year: 2025, items: [
+        { slug: "2025_vara",     label: "Sesiunea vara" },
+        { slug: "2025_toamna",   label: "Sesiunea toamna" },
+        { slug: "2025_speciala", label: "Sesiunea speciala" },
+        { slug: "2025_simulare", label: "Simulare" },
+        { slug: "2025_modele",   label: "Modele de subiecte" }
+      ]},
+      { year: 2024, items: [
+        { slug: "2024_vara",     label: "Sesiunea vara" },
+        { slug: "2024_toamna",   label: "Sesiunea toamna" },
+        { slug: "2024_speciala", label: "Sesiunea speciala" },
+        { slug: "2024_simulare", label: "Simulare" },
+        { slug: "2024_modele",   label: "Modele de subiecte" }
+      ]},
+      { year: 2023, items: [
+        { slug: "2023_vara",     label: "Sesiunea vara" },
+        { slug: "2023_toamna",   label: "Sesiunea toamna" },
+        { slug: "2023_speciala", label: "Sesiunea speciala" },
+        { slug: "2023_simulare", label: "Simulare" },
+        { slug: "2023_modele",   label: "Modele de subiecte" }
+      ]},
+      { year: 2022, items: [
+        { slug: "2022_vara",     label: "Sesiunea vara" },
+        { slug: "2022_toamna",   label: "Sesiunea toamna" },
+        { slug: "2022_speciala", label: "Sesiunea speciala" },
+        { slug: "2022_simulare", label: "Simulare" }
+      ]},
+      { year: 2021, items: [
+        { slug: "2021_vara",     label: "Sesiunea vara" },
+        { slug: "2021_toamna",   label: "Sesiunea toamna" },
+        { slug: "2021_speciala", label: "Sesiunea speciala" },
+        { slug: "2021_simulare", label: "Simulare" },
+        { slug: "2021_modele",   label: "Modele de subiecte" },
+        { slug: "2021_test_1",   label: "Test de antrenament 1" },
+        { slug: "2021_test_2",   label: "Test de antrenament 2" },
+        { slug: "2021_test_3",   label: "Test de antrenament 3" },
+        { slug: "2021_test_4",   label: "Test de antrenament 4" },
+        { slug: "2021_test_5",   label: "Test de antrenament 5" },
+        { slug: "2021_test_6",   label: "Test de antrenament 6" },
+        { slug: "2021_test_7",   label: "Test de antrenament 7" },
+        { slug: "2021_test_8",   label: "Test de antrenament 8" },
+        { slug: "2021_test_9",   label: "Test de antrenament 9" },
+        { slug: "2021_test_10",  label: "Test de antrenament 10" },
+        { slug: "2021_test_11",  label: "Test de antrenament 11" },
+        { slug: "2021_test_12",  label: "Test de antrenament 12" }
+      ]},
+      { year: 2020, items: [
+        { slug: "2020_vara",     label: "Sesiunea vara" },
+        { slug: "2020_toamna",   label: "Sesiunea toamna" },
+        { slug: "2020_speciala", label: "Sesiunea speciala" },
+        { slug: "2020_modele",   label: "Modele de subiecte" }
+      ]},
+      { year: 2019, items: [
+        { slug: "2019_vara",     label: "Sesiunea vara" },
+        { slug: "2019_toamna",   label: "Sesiunea toamna" },
+        { slug: "2019_speciala", label: "Sesiunea speciala" },
+        { slug: "2019_simulare", label: "Simulare" }
+      ]},
+      { year: 2018, items: [
+        { slug: "2018_vara",     label: "Sesiunea vara" },
+        { slug: "2018_toamna",   label: "Sesiunea toamna" },
+        { slug: "2018_speciala", label: "Sesiunea speciala" }
+      ]}
+    ];
+
+    /* ================================================================
+       1b. BAREM LINKS — keyed by slug
+    ================================================================ */
+    const BAREM = {
+      '2018_speciala':  'https://www.pbinfo.ro/resurse/9dc152/examene/2018-special/E_d_Informatica_sp_MI_2018_bar_09_LRO.pdf',
+      '2018_toamna':    'https://www.pbinfo.ro/resurse/9dc152/examene/2018-august/E_d_Informatica_sp_MI_2018_bar_01_LRO.pdf',
+      '2018_vara':      'https://www.pbinfo.ro/resurse/9dc152/examene/2018-iunie/E_d_Informatica_sp_MI_2018_bar_02_LRO.pdf',
+      '2019_simulare':  'https://www.pbinfo.ro/resurse/9dc152/examene/2019/simulare/E_d_Informatica_2019_sp_MI_bar_simulare_LRO.pdf',
+      '2019_speciala':  'https://www.pbinfo.ro/resurse/9dc152/examene/2019/2019-speciala/E_d_Informatica_2019_sp_MI_bar_01_LRO.pdf',
+      '2019_toamna':    'https://www.pbinfo.ro/resurse/9dc152/examene/2019/2019-august-septembrie/E_d_Informatica_2019_sp_MI_bar_02_LRO.pdf',
+      '2019_vara':      'https://www.pbinfo.ro/resurse/9dc152/examene/2019/2019-iunie-iulie/E_d_Informatica_2019_sp_MI_bar_04_LRO.pdf',
+      '2020_modele':    'https://www.pbinfo.ro/resurse/9dc152/examene/2020/E_d_Informatica_2020_sp_MI_bar_model_LRO.pdf',
+      '2020_speciala':  'https://www.pbinfo.ro/resurse/9dc152/examene/2020/E_d_Informatica_2020_sp_MI_bar_02_LRO.pdf',
+      '2020_toamna':    'https://www.pbinfo.ro/resurse/9dc152/examene/2020/E_d_Informatica_2020_sp_MI_bar_05.pdf',
+      '2020_vara':      'https://www.pbinfo.ro/resurse/9dc152/examene/2020/E_d_Informatica_2020_sp_MI_bar_06.pdf',
+      'mec2020_test_1':  'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_bar_test_01.pdf',
+      'mec2020_test_2':  'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_bar_test_02.pdf',
+      'mec2020_test_3':  'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_bar_test_03.pdf',
+      'mec2020_test_4':  'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_bar_test_04.pdf',
+      'mec2020_test_5':  'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_bar_test_05.pdf',
+      'mec2020_test_6':  'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_bar_test_06.pdf',
+      'mec2020_test_7':  'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_bar_test_07.pdf',
+      'mec2020_test_8':  'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_bar_test_08.pdf',
+      'mec2020_test_9':  'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_bar_test_09.pdf',
+      'mec2020_test_10': 'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_bar_test_10.pdf',
+      'mec2020_test_11': 'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_bar_test_11.pdf',
+      'mec2020_test_12': 'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_bar_test_12.pdf',
+      'mec2020_test_13': 'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_bar_test_13.pdf',
+      'mec2020_test_14': 'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_bar_test_14.pdf',
+      'mec2020_test_15': 'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_bar_test_15.pdf',
+      'mec2020_test_16': 'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_bar_test_16.pdf',
+      'mec2020_test_17': 'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_bar_test_17.pdf',
+      'mec2020_test_18': 'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_bar_test_18.pdf',
+      'mec2020_test_19': 'https://www.pbinfo.ro/resurse/9dc152/examene/2020/19-20/E_d_Informatica_2020_sp_MI_bar_test_19.pdf',
+      'mec2020_test_20': 'https://www.pbinfo.ro/resurse/9dc152/examene/2020/19-20/E_d_Informatica_2020_sp_MI_bar_test_20.pdf',
+      '2021_simulare':  'https://www.pbinfo.ro/resurse/9dc152/examene/2021/simulare/E_d_Informatica_2021_sp_MI_bar_Simulare_LRO.pdf',
+      '2021_speciala':  'https://www.pbinfo.ro/resurse/9dc152/examene/2021/ses_speciala/E_d_Informatica_2021_sp_MI_bar_07.pdf',
+      '2021_toamna':    'https://www.pbinfo.ro/resurse/9dc152/examene/2021/august/E_d_Informatica_2021_sp_MI_bar_04_LRO.pdf',
+      '2021_vara':      'https://www.pbinfo.ro/resurse/9dc152/examene/2021/iunie-iulie/E_d_Informatica_2021_sp_MI_bar_01_LRO.pdf',
+      '2021_test_1':    'https://www.pbinfo.ro/resurse/9dc152/examene/2021/antrenament/E_d_Informatica_2021_sp_MI_Bar_01.pdf',
+      '2021_test_2':    'https://www.pbinfo.ro/resurse/9dc152/examene/2021/antrenament/E_d_Informatica_2021_sp_MI_Bar_02.pdf',
+      '2021_test_3':    'https://www.pbinfo.ro/resurse/9dc152/examene/2021/antrenament/E_d_Informatica_2021_sp_MI_Bar_03.pdf',
+      '2021_test_4':    'https://www.pbinfo.ro/resurse/9dc152/examene/2021/antrenament/E_d_Informatica_2021_sp_MI_Bar_04.pdf',
+      '2021_test_5':    'https://www.pbinfo.ro/resurse/9dc152/examene/2021/antrenament/E_d_Informatica_2021_sp_MI_Bar_05.pdf',
+      '2021_test_6':    'https://www.pbinfo.ro/resurse/9dc152/examene/2021/antrenament/E_d_Informatica_2021_sp_MI_Bar_06.pdf',
+      '2021_test_7':    'https://www.pbinfo.ro/resurse/9dc152/examene/2021/antrenament/E_d_Informatica_2021_sp_MI_Bar_07.pdf',
+      '2021_test_8':    'https://www.pbinfo.ro/resurse/9dc152/examene/2021/antrenament/E_d_Informatica_2021_sp_MI_Bar_08.pdf',
+      '2021_test_9':    'https://www.pbinfo.ro/resurse/9dc152/examene/2021/antrenament/E_d_Informatica_2021_sp_MI_Bar_09.pdf',
+      '2021_test_10':   'https://www.pbinfo.ro/resurse/9dc152/examene/2021/antrenament/E_d_Informatica_2021_sp_MI_Bar_10.pdf',
+      '2021_test_11':   'https://www.pbinfo.ro/resurse/9dc152/examene/2021/antrenament/E_d_Informatica_2021_sp_MI_Bar_11.pdf',
+      '2021_test_12':   'https://www.pbinfo.ro/resurse/9dc152/examene/2021/antrenament/E_d_Informatica_2021_sp_MI_Bar_12.pdf',
+      '2022_simulare':  'https://www.pbinfo.ro/resurse/9dc152/examene/2022/E_d_informatica_2022_sp_MI_bar_simulare_LRO.pdf',
+      '2022_speciala':  'https://www.pbinfo.ro/resurse/9dc152/examene/2022/E_d_Informatica_2022_sp_MI_bar_04_LRO.pdf',
+      '2022_toamna':    'https://www.pbinfo.ro/resurse/9dc152/examene/2022/E_d_Informatica_2022_sp_MI_bar_05_LRO.pdf',
+      '2022_vara':      'https://www.pbinfo.ro/resurse/9dc152/examene/2022/E_d_Informatica_2022_sp_MI_bar_01_LRO.pdf',
+      '2023_modele':    'https://www.pbinfo.ro/resurse/9dc152/examene/2023/E_D_Informatica_2023_sp_MI_bar_model.pdf',
+      '2023_simulare':  'https://www.pbinfo.ro/resurse/9dc152/examene/2023/E_d_Informatica_2023_sp_MI_bar_simulare_LRO.pdf',
+      '2023_speciala':  'https://www.pbinfo.ro/resurse/9dc152/examene/2023/E_d_Informatica_2023_sp_MI_bar_06_LRO.pdf',
+      '2023_toamna':    'https://www.pbinfo.ro/resurse/9dc152/examene/2023/E_d_Informatica_2023_sp_MI_bar_07_LRO.pdf',
+      '2023_vara':      'https://www.pbinfo.ro/resurse/9dc152/examene/2023/E_d_Informatica_2023_sp_MI_bar_05_LRO.pdf',
+      '2024_modele':    'https://www.pbinfo.ro/resurse/9dc152/examene/2024/E_D_Informatica_2024_sp_MI_bar_model.pdf',
+      '2024_simulare':  'https://www.pbinfo.ro/resurse/9dc152/examene/2024/sim/E_d_Informatica_2024_MI_bar_simulare_LRO.pdf',
+      '2024_speciala':  'https://www.pbinfo.ro/resurse/9dc152/examene/2024/E_d_Informatica_2024_sp_MI_bar_04_LRO.pdf',
+      '2024_toamna':    'https://www.pbinfo.ro/resurse/9dc152/examene/2024/E_d_Informatica_2024_sp_MI_bar_08_LRO.pdf',
+      '2024_vara':      'https://www.pbinfo.ro/resurse/9dc152/examene/2024/E_d_Informatica_2024_sp_MI_bar_03_LRO.pdf',
+      '2025_modele':    'https://www.pbinfo.ro/resurse/9dc152/examene/2025/E_d_informatica_2025_sp_MI_bar_model.pdf',
+      '2025_simulare':  'https://www.pbinfo.ro/resurse/9dc152/examene/2025/E_d_Informatica_2025_sp_MI_bar_Simulare_LRO.pdf',
+      '2025_speciala':  'https://www.pbinfo.ro/resurse/9dc152/examene/2025/E_d_informatica_2025_sp_MI_bar_06_LRO.pdf',
+      '2025_toamna':    'https://www.pbinfo.ro/resurse/9dc152/examene/2025/E_d_informatica_2025_sp_MI_bar_04_LRO.pdf',
+      '2025_vara':      'https://www.pbinfo.ro/resurse/9dc152/examene/2025/E_d_informatica_2025_sp_MI_bar_01_LRO.pdf',
+      '2026_modele':    'https://www.pbinfo.ro/resurse/9dc152/examene/2026/E_d_informatica_2026_sp_MI_bar_model.pdf',
+    };
+
+    /* ================================================================
+       2. STATE
+    ================================================================ */
+    const state = {
+      openYears:    new Set(),
+      selectedSlug: null
+    };
+
+    /* ================================================================
+       3. HELPERS
+    ================================================================ */
+    function save(key, val)       { localStorage.setItem(key, val); }
+    function load(key, def = '')  { return localStorage.getItem(key) ?? def; }
+
+    /** localStorage key: bac_{profileId}_{slug}_{field} */
+    function lk(slug, field)      { return 'bac_' + PROFILE_ID + '_' + slug + '_' + field; }
+
+    /* ================================================================
+       PROFILE SYSTEM
+    ================================================================ */
+    let PROFILE_ID = 'default';
+
+    function getProfiles() {
+      try { return JSON.parse(localStorage.getItem('bac__profiles') || 'null') || []; }
+      catch { return []; }
+    }
+
+    function saveProfiles(arr) { localStorage.setItem('bac__profiles', JSON.stringify(arr)); }
+    function getActiveProfileId() { return localStorage.getItem('bac__active') || 'default'; }
+    function setActiveProfileId(id) { localStorage.setItem('bac__active', id); }
+
+    /** One-time migration: copy old bac_{slug}_{field} keys → bac_default_{slug}_{field} */
+    function migrateIfNeeded() {
+      if (localStorage.getItem('bac__migrated') === '1') return;
+      Object.keys(localStorage)
+        .filter(k => k.startsWith('bac_') && !k.startsWith('bac__'))
+        .forEach(k => {
+          const newKey = 'bac_default_' + k.slice(4);
+          if (!localStorage.getItem(newKey)) {
+            localStorage.setItem(newKey, localStorage.getItem(k));
+          }
+        });
+      localStorage.setItem('bac__migrated', '1');
+    }
+
+    function initProfiles() {
+      migrateIfNeeded();
+      let profiles = getProfiles();
+      if (profiles.length === 0) {
+        profiles = [{ id: 'default', name: 'User 1' }];
+        saveProfiles(profiles);
+      }
+      PROFILE_ID = getActiveProfileId();
+      if (!profiles.find(p => p.id === PROFILE_ID)) {
+        PROFILE_ID = profiles[0].id;
+        setActiveProfileId(PROFILE_ID);
+      }
+      renderProfileWidget();
+    }
+
+    function renderProfileWidget() {
+      const profiles = getProfiles();
+      const current = profiles.find(p => p.id === PROFILE_ID);
+
+      /* Update trigger label */
+      document.getElementById('profile-name-display').textContent =
+        current ? current.name : PROFILE_ID;
+
+      /* Render profile list */
+      const listEl = document.getElementById('profile-list');
+      listEl.innerHTML = '';
+      profiles.forEach(p => {
+        const item = document.createElement('div');
+        item.className = 'profile-item' + (p.id === PROFILE_ID ? ' active' : '');
+        item.dataset.profileId = p.id;
+        item.innerHTML =
+          `<span class="profile-item-name">${escH(p.name)}</span>` +
+          (p.id === PROFILE_ID ? '<span class="profile-item-check">✓</span>' : '') +
+          `<button class="profile-item-ren" data-ren-profile="${escA(p.id)}" title="Redenumește profil">✎</button>` +
+          (profiles.length > 1
+            ? `<button class="profile-item-del" data-del-profile="${escA(p.id)}" title="Șterge profil">✕</button>`
+            : '');
+        item.addEventListener('click', e => {
+          if (e.target.dataset.delProfile) return; /* handled separately */
+          if (e.target.dataset.renProfile) return; /* handled separately */
+          switchProfile(p.id);
+        });
+        const renBtn = item.querySelector('.profile-item-ren');
+        if (renBtn) {
+          renBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            showRenameProfileInput(p.id, p.name);
+          });
+        }
+        const delBtn = item.querySelector('.profile-item-del');
+        if (delBtn) {
+          delBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            deleteProfile(p.id);
+          });
+        }
+        listEl.appendChild(item);
+      });
+    }
+
+    function switchProfile(id) {
+      PROFILE_ID = id;
+      setActiveProfileId(id);
+      closeProfileDropdown();
+      renderProfileWidget();
+      /* Reload panel for current slug with new profile's data */
+      renderYearList();
+      renderVariantPanel();
+    }
+
+    function createProfile(name) {
+      const id = 'p_' + Date.now();
+      const profiles = getProfiles();
+      profiles.push({ id, name });
+      saveProfiles(profiles);
+      switchProfile(id);
+    }
+
+    function deleteProfile(id) {
+      let profiles = getProfiles();
+      if (profiles.length <= 1) return; /* never delete last profile */
+      profiles = profiles.filter(p => p.id !== id);
+      saveProfiles(profiles);
+      if (PROFILE_ID === id) {
+        PROFILE_ID = profiles[0].id;
+        setActiveProfileId(PROFILE_ID);
+      }
+      renderProfileWidget();
+      renderYearList();
+      renderVariantPanel();
+    }
+
+    let _renameTargetId = null;
+
+    function showRenameProfileInput(id, currentName) {
+      _renameTargetId = id;
+      hideNewProfileInput();
+      const wrap = document.getElementById('profile-ren-name-wrap');
+      const input = document.getElementById('profile-ren-name-input');
+      wrap.classList.add('visible');
+      input.value = currentName;
+      input.focus();
+      input.select();
+    }
+
+    function hideRenameProfileInput() {
+      _renameTargetId = null;
+      document.getElementById('profile-ren-name-wrap').classList.remove('visible');
+      document.getElementById('profile-ren-name-input').value = '';
+    }
+
+    function renameProfile(id, newName) {
+      if (!newName) return;
+      const profiles = getProfiles();
+      const p = profiles.find(p => p.id === id);
+      if (p) { p.name = newName; saveProfiles(profiles); }
+      renderProfileWidget();
+    }
+
+    function exportProfile() {
+      const profiles = getProfiles();
+      const current = profiles.find(p => p.id === PROFILE_ID) || { id: PROFILE_ID, name: PROFILE_ID };
+      const prefix = 'bac_' + PROFILE_ID + '_';
+      const data = {};
+      Object.keys(localStorage)
+        .filter(k => k.startsWith(prefix))
+        .forEach(k => { data[k.slice(prefix.length)] = localStorage.getItem(k); });
+
+      const payload = { profileName: current.name, exportedAt: new Date().toISOString(), data };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'bac_profil_' + current.name.replace(/\s+/g, '_') + '.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      closeProfileDropdown();
+    }
+
+    function importProfile(file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const payload = JSON.parse(e.target.result);
+          if (!payload.data || typeof payload.data !== 'object') {
+            alert('Fișier invalid — nu conține date de profil.');
+            return;
+          }
+          const name = payload.profileName || file.name.replace(/\.json$/i, '');
+          const id = 'p_' + Date.now();
+          const prefix = 'bac_' + id + '_';
+          Object.entries(payload.data).forEach(([k, v]) => {
+            localStorage.setItem(prefix + k, v);
+          });
+          const profiles = getProfiles();
+          profiles.push({ id, name });
+          saveProfiles(profiles);
+          switchProfile(id);
+        } catch {
+          alert('Eroare la citirea fișierului JSON.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function openProfileDropdown() {
+      document.getElementById('profile-widget').classList.add('open');
+    }
+
+    function closeProfileDropdown() {
+      document.getElementById('profile-widget').classList.remove('open');
+      hideNewProfileInput();
+      hideRenameProfileInput();
+      hideMergeUI();
+    }
+
+    function showNewProfileInput() {
+      const wrap = document.getElementById('profile-new-name-wrap');
+      wrap.classList.add('visible');
+      document.getElementById('profile-new-name-input').focus();
+    }
+
+    function hideNewProfileInput() {
+      document.getElementById('profile-new-name-wrap').classList.remove('visible');
+      document.getElementById('profile-new-name-input').value = '';
+    }
+
+    function showMergeUI() {
+      hideNewProfileInput();
+      hideRenameProfileInput();
+      const wrap = document.getElementById('profile-merge-wrap');
+      wrap.classList.add('visible');
+      /* Populate selects with current profiles */
+      const profiles = getProfiles();
+      ['profile-merge-primary', 'profile-merge-secondary'].forEach(selId => {
+        const sel = document.getElementById(selId);
+        sel.innerHTML = profiles.map(p =>
+          `<option value="${escA(p.id)}">${escH(p.name)}</option>`
+        ).join('');
+      });
+      /* Default: primary = active, secondary = first different profile */
+      document.getElementById('profile-merge-primary').value = PROFILE_ID;
+      const other = profiles.find(p => p.id !== PROFILE_ID);
+      if (other) document.getElementById('profile-merge-secondary').value = other.id;
+    }
+
+    function hideMergeUI() {
+      document.getElementById('profile-merge-wrap').classList.remove('visible');
+    }
+
+    /** A value is "meaningful" if the user actually entered/selected something */
+    function isMeaningful(val) {
+      return val !== null && val !== '' && val !== '0';
+    }
+
+    function mergeProfiles(primaryId, secondaryId) {
+      if (primaryId === secondaryId) {
+        alert('Selectează două profiluri diferite pentru a le combina.');
+        return;
+      }
+      const profiles = getProfiles();
+      const primary   = profiles.find(p => p.id === primaryId);
+      const secondary = profiles.find(p => p.id === secondaryId);
+      if (!primary || !secondary) return;
+
+      const newId        = 'p_' + Date.now();
+      const newName      = 'combinat_' + primary.name + '_' + secondary.name;
+      const newPrefix    = 'bac_' + newId + '_';
+      const priPrefix    = 'bac_' + primaryId + '_';
+      const secPrefix    = 'bac_' + secondaryId + '_';
+
+      /* Step 1 — copy meaningful values from secondary (fills gaps) */
+      Object.keys(localStorage)
+        .filter(k => k.startsWith(secPrefix))
+        .forEach(k => {
+          const val = localStorage.getItem(k);
+          if (isMeaningful(val)) {
+            localStorage.setItem(newPrefix + k.slice(secPrefix.length), val);
+          }
+        });
+
+      /* Step 2 — overwrite with meaningful values from primary (primary wins) */
+      Object.keys(localStorage)
+        .filter(k => k.startsWith(priPrefix))
+        .forEach(k => {
+          const val = localStorage.getItem(k);
+          if (isMeaningful(val)) {
+            localStorage.setItem(newPrefix + k.slice(priPrefix.length), val);
+          }
+        });
+
+      profiles.push({ id: newId, name: newName });
+      saveProfiles(profiles);
+      switchProfile(newId);
+    }
+
+    function attachProfileListeners() {
+      const trigger = document.getElementById('profile-trigger');
+      trigger.addEventListener('click', e => {
+        e.stopPropagation();
+        const widget = document.getElementById('profile-widget');
+        widget.classList.contains('open') ? closeProfileDropdown() : openProfileDropdown();
+      });
+
+      /* Close on outside click */
+      document.addEventListener('click', e => {
+        const widget = document.getElementById('profile-widget');
+        if (!widget.contains(e.target)) closeProfileDropdown();
+      });
+
+      document.getElementById('btn-new-profile').addEventListener('click', e => {
+        e.stopPropagation();
+        showNewProfileInput();
+      });
+
+      document.getElementById('profile-new-confirm').addEventListener('click', e => {
+        e.stopPropagation();
+        const name = document.getElementById('profile-new-name-input').value.trim();
+        if (name) createProfile(name);
+        hideNewProfileInput();
+      });
+
+      document.getElementById('profile-new-name-input').addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          const name = e.target.value.trim();
+          if (name) createProfile(name);
+          hideNewProfileInput();
+        }
+        if (e.key === 'Escape') hideNewProfileInput();
+      });
+
+      document.getElementById('profile-ren-confirm').addEventListener('click', e => {
+        e.stopPropagation();
+        const name = document.getElementById('profile-ren-name-input').value.trim();
+        if (name && _renameTargetId) renameProfile(_renameTargetId, name);
+        hideRenameProfileInput();
+      });
+
+      document.getElementById('profile-ren-name-input').addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          const name = e.target.value.trim();
+          if (name && _renameTargetId) renameProfile(_renameTargetId, name);
+          hideRenameProfileInput();
+        }
+        if (e.key === 'Escape') hideRenameProfileInput();
+      });
+
+      document.getElementById('btn-export-profile').addEventListener('click', e => {
+        e.stopPropagation();
+        exportProfile();
+      });
+
+      document.getElementById('btn-import-profile').addEventListener('click', e => {
+        e.stopPropagation();
+        document.getElementById('profile-file-input').click();
+      });
+
+      document.getElementById('profile-file-input').addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (file) importProfile(file);
+        e.target.value = ''; /* reset so same file can be re-imported */
+      });
+
+      document.getElementById('btn-merge-profiles').addEventListener('click', e => {
+        e.stopPropagation();
+        showMergeUI();
+      });
+
+      document.getElementById('profile-merge-confirm').addEventListener('click', e => {
+        e.stopPropagation();
+        const priId = document.getElementById('profile-merge-primary').value;
+        const secId = document.getElementById('profile-merge-secondary').value;
+        mergeProfiles(priId, secId);
+        hideMergeUI();
+      });
+
+      /* Prevent dropdown from closing when clicking inside it */
+      document.getElementById('profile-dropdown').addEventListener('click', e => {
+        e.stopPropagation();
+      });
+    }
+
+    /** Escape HTML attribute values */
+    function escA(s) {
+      return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+
+    /** Escape HTML text nodes */
+    function escH(s) {
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    /* ================================================================
+       4. RENDER — YEAR LIST
+    ================================================================ */
+    function renderYearList() {
+      const container = document.getElementById('year-list');
+      container.innerHTML = '';
+
+      DATA.forEach(({ year, items }) => {
+        const isOpen = state.openYears.has(year);
+
+        const section = document.createElement('div');
+        section.className = 'year-section';
+
+        /* Header */
+        const header = document.createElement('div');
+        header.className = 'year-header' + (isOpen ? ' open' : '');
+        header.dataset.action = 'toggle-year';
+        header.dataset.year   = year;
+        header.innerHTML = `
+          <div class="year-header-left">
+            <span class="year-label">${year}</span>
+            <span class="year-count">${items.length} variant${items.length !== 1 ? 'e' : 'ă'}</span>
+          </div>
+          <div class="year-header-right">
+            <span class="year-chevron">▶</span>
+          </div>
+        `;
+
+        /* Body */
+        const body = document.createElement('div');
+        body.className = 'year-body' + (isOpen ? ' open' : '');
+
+        const inner = document.createElement('div');
+        inner.className = 'year-body-inner';
+
+        items.forEach(({ slug, label }) => {
+          const isSelected = state.selectedSlug === slug;
+          const isDone     = load(lk(slug, 'done'), '0') === '1';
+
+          const pill = document.createElement('button');
+          pill.className = 'variant-pill'
+            + (isSelected ? ' active' : '')
+            + (isDone ? ' done' : '');
+          pill.dataset.action = 'select-variant';
+          pill.dataset.slug   = slug;
+          pill.innerHTML = (isDone ? '<span class="pill-done-dot">●</span>' : '')
+            + escH(label);
+
+          inner.appendChild(pill);
+        });
+
+        body.appendChild(inner);
+        section.appendChild(header);
+        section.appendChild(body);
+        container.appendChild(section);
+      });
+    }
+
+    /* ================================================================
+       5. RENDER — VARIANT PANEL
+    ================================================================ */
+    function renderVariantPanel() {
+      const panel = document.getElementById('variant-panel');
+
+      if (!state.selectedSlug) {
+        panel.classList.remove('visible', 'shown');
+        setTimeout(() => { if (!state.selectedSlug) panel.innerHTML = ''; }, 210);
+        return;
+      }
+
+      const slug = state.selectedSlug;
+
+      /* Find label + year from DATA */
+      let label = slug, year = '';
+      for (const { year: y, items } of DATA) {
+        const found = items.find(i => i.slug === slug);
+        if (found) { label = found.label; year = y; break; }
+      }
+
+      panel.classList.remove('shown');
+      panel.classList.add('visible');
+      panel.innerHTML = buildPanelHTML(slug, label, year);
+
+      restorePanel(slug);
+      attachPanelListeners(slug);
+
+      /* Trigger fade-in after two paint frames */
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        panel.classList.add('shown');
+      }));
+    }
+
+    /* ================================================================
+       6. BUILD PANEL HTML
+    ================================================================ */
+    function buildPanelHTML(slug, label, year) {
+      const baremUrl = BAREM[slug] || null;
+      const baremHTML = baremUrl
+        ? `<a class="barem-link" href="${escA(baremUrl)}" target="_blank" rel="noopener noreferrer"
+             title="Deschide baremul în tab nou">↗ Barem <span class="barem-link-sub">(PDF)</span></a>`
+        : '';
+
+      return `
+        <div class="panel-header">
+          <div class="panel-title">
+            ${escH(label)}<span class="panel-yr">· ${year}</span>
+          </div>
+          <button class="btn-close" data-action="close-panel" title="Închide">×</button>
+        </div>
+
+        <!-- PDF — auto path from slug, no user input needed -->
+        <div class="section">
+          <div class="section-title">📄 Subiect PDF</div>
+          <div class="pdf-meta-row">
+            <span class="pdf-label">📄 ${escH(slug)}.pdf</span>
+            ${baremHTML}
+          </div>
+          <embed
+            class="pdf-embed"
+            src="sources/${escA(slug)}.pdf"
+            type="application/pdf"
+          >
+        </div>
+
+        <!-- Subiectul I -->
+        <div class="section">
+          <div class="section-title">Subiectul I — Grilă</div>
+          ${buildSubIHTML(slug)}
+          <label class="notes-label" for="s1-notes">Notițe — Subiectul I</label>
+          <textarea id="s1-notes" placeholder="Observații despre grilă..."></textarea>
+        </div>
+
+        <!-- Subiectul II -->
+        <div class="section">
+          <div class="section-title">Subiectul II — Probleme</div>
+          ${buildSubIIHTML(slug)}
+          <label class="notes-label" for="s2-notes">Notițe — Subiectul II</label>
+          <textarea id="s2-notes" placeholder="Observații despre probleme..."></textarea>
+        </div>
+
+        <!-- Subiectul III -->
+        <div class="section">
+          <div class="section-title">Subiectul III — Problemă Complexă</div>
+          <div class="s3-header">
+            <span class="s3-label">Problemă complexă</span>
+            <div class="flag-group">
+              ${flagBtn('s3_fq',  '?',  'flag-q')}
+              ${flagBtn('s3_fai', 'AI', 'flag-ai')}
+            </div>
+          </div>
+          <textarea id="s3-txt" class="code-area-lg"
+            placeholder="Rezolvare completă / cod C++ ..."></textarea>
+          <label class="notes-label" for="s3-notes">Notițe — Subiectul III</label>
+          <textarea id="s3-notes" placeholder="Observații..."></textarea>
+        </div>
+
+        <!-- Notițe generale -->
+        <div class="section gen-notes">
+          <div class="section-title">📝 Notițe generale</div>
+          <p class="gen-notes-sub">Ce vreau să rețin după această variantă</p>
+          <textarea id="gen-notes"
+            style="font-family:'DM Sans',sans-serif;font-size:14px;min-height:130px;"
+            placeholder="Unde am greșit, ce trebuie aprofundat, observații..."></textarea>
+        </div>
+
+        <!-- Terminat button -->
+        <div class="terminat-wrap">
+          <button id="btn-terminat" class="btn-terminat">Terminat! ✓</button>
+        </div>
+      `;
+    }
+
+    /* Build Subiectul I — 5 rows */
+    function buildSubIHTML(slug) {
+      let html = '';
+      for (let n = 1; n <= 5; n++) {
+        html += `
+          <div class="exercise-row${n === 5 ? ' last-row' : ''}">
+            <span class="ex-label">Ex. ${n}</span>
+            <div class="mcq-group">
+              ${['A','B','C','D'].map(o =>
+                `<button class="btn-mcq" data-mcq-ex="${n}" data-mcq-val="${o}">${o}</button>`
+              ).join('')}
+            </div>
+            <div class="flag-group">
+              ${flagBtn('s1_ex'+n+'_fq',  '?',  'flag-q')}
+              ${flagBtn('s1_ex'+n+'_fai', 'AI', 'flag-ai')}
+            </div>
+          </div>`;
+      }
+      return html;
+    }
+
+    /* Build Subiectul II — 3 blocks */
+    function buildSubIIHTML(slug) {
+      let html = '';
+      for (let n = 1; n <= 3; n++) {
+        html += `
+          <div class="exercise-block">
+            <div class="exercise-block-header">
+              <span class="exercise-block-title">Exercițiul ${n}</span>
+              <div class="flag-group">
+                ${flagBtn('s2_ex'+n+'_fq',  '?',  'flag-q')}
+                ${flagBtn('s2_ex'+n+'_fai', 'AI', 'flag-ai')}
+              </div>
+            </div>
+            <textarea id="s2-ex${n}-txt" class="code-area"
+              placeholder="Răspuns / cod C++ ..."></textarea>
+          </div>`;
+      }
+      return html;
+    }
+
+    /** Render a flag button. flagId becomes both the element id suffix and the storage field. */
+    function flagBtn(flagId, label, type) {
+      return `<button class="btn-flag ${type}" id="flag-${flagId}"
+        data-flag-id="${flagId}">${label}</button>`;
+    }
+
+    /* ================================================================
+       7. RESTORE — read all localStorage into panel DOM
+    ================================================================ */
+    function restorePanel(slug) {
+      const p = f => lk(slug, f);
+
+      /* Sub I */
+      for (let n = 1; n <= 5; n++) {
+        const ans = load(p('s1_ex' + n + '_ans'));
+        if (ans) {
+          const btn = document.querySelector(
+            `.btn-mcq[data-mcq-ex="${n}"][data-mcq-val="${ans}"]`
+          );
+          if (btn) btn.classList.add('selected');
+        }
+        restoreFlag('s1_ex' + n + '_fq',  slug);
+        restoreFlag('s1_ex' + n + '_fai', slug);
+      }
+      setTA('s1-notes',  load(p('s1_notes')));
+
+      /* Sub II */
+      for (let n = 1; n <= 3; n++) {
+        setTA('s2-ex' + n + '-txt', load(p('s2_ex' + n + '_txt')));
+        restoreFlag('s2_ex' + n + '_fq',  slug);
+        restoreFlag('s2_ex' + n + '_fai', slug);
+      }
+      setTA('s2-notes', load(p('s2_notes')));
+
+      /* Sub III */
+      setTA('s3-txt',   load(p('s3_txt')));
+      restoreFlag('s3_fq',  slug);
+      restoreFlag('s3_fai', slug);
+      setTA('s3-notes', load(p('s3_notes')));
+
+      /* General notes */
+      setTA('gen-notes', load(p('gen_notes')));
+
+      /* Terminat button */
+      const isDone = load(p('done'), '0') === '1';
+      applyTerminatState(document.getElementById('btn-terminat'), isDone);
+    }
+
+    function setTA(id, val) {
+      const el = document.getElementById(id);
+      if (el) el.value = val;
+    }
+
+    function restoreFlag(flagId, slug) {
+      const isActive = load(lk(slug, flagId), '0') === '1';
+      const btn = document.getElementById('flag-' + flagId);
+      if (btn && isActive) btn.classList.add('active');
+    }
+
+    /* Apply done/not-done visual state to the Terminat button */
+    function applyTerminatState(btn, isDone) {
+      if (!btn) return;
+      btn.classList.toggle('done', isDone);
+      btn.textContent = isDone ? '✓ Terminat!' : 'Terminat! ✓';
+    }
+
+    /* ================================================================
+       8. PANEL LISTENERS — attached once after each panel build
+    ================================================================ */
+    function attachPanelListeners(slug) {
+      const p = f => lk(slug, f);
+
+      /* MCQ buttons */
+      document.querySelectorAll('.btn-mcq').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const n   = btn.dataset.mcqEx;
+          const val = btn.dataset.mcqVal;
+          const key = p('s1_ex' + n + '_ans');
+          /* Toggle: clicking the active answer deselects it */
+          const newVal = load(key) === val ? '' : val;
+          save(key, newVal);
+          document.querySelectorAll(`.btn-mcq[data-mcq-ex="${n}"]`).forEach(b => {
+            b.classList.toggle('selected', b.dataset.mcqVal === newVal && newVal !== '');
+          });
+        });
+      });
+
+      /* Flag buttons — [?] and [AI] are fully independent */
+      document.querySelectorAll('.btn-flag').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const flagId = btn.dataset.flagId;
+          const key    = lk(slug, flagId);
+          const newVal = load(key, '0') === '1' ? '0' : '1';
+          save(key, newVal);
+          btn.classList.toggle('active', newVal === '1');
+        });
+      });
+
+      /* Textareas — Sub I notes */
+      bindTA('s1-notes',  p('s1_notes'));
+
+      /* Sub II textareas */
+      for (let n = 1; n <= 3; n++) bindTA('s2-ex' + n + '-txt', p('s2_ex' + n + '_txt'));
+      bindTA('s2-notes', p('s2_notes'));
+
+      /* Sub III */
+      bindTA('s3-txt',   p('s3_txt'));
+      bindTA('s3-notes', p('s3_notes'));
+
+      /* General notes */
+      bindTA('gen-notes', p('gen_notes'));
+
+      /* Terminat button */
+      const terminatBtn = document.getElementById('btn-terminat');
+      if (terminatBtn) {
+        terminatBtn.addEventListener('click', () => {
+          const isDone = load(p('done'), '0') === '1';
+          const newDone = !isDone;
+          save(p('done'), newDone ? '1' : '0');
+          applyTerminatState(terminatBtn, newDone);
+          /* Update the pill button in the year list directly — no full re-render */
+          updatePillDoneState(slug, newDone);
+        });
+      }
+    }
+
+    function bindTA(id, key) {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', () => save(key, el.value));
+    }
+
+    /* Update a pill button's done appearance directly in the DOM */
+    function updatePillDoneState(slug, isDone) {
+      const pill = document.querySelector(`.variant-pill[data-slug="${CSS.escape(slug)}"]`);
+      if (!pill) return;
+
+      /* Find the label text — DATA lookup */
+      let label = slug;
+      for (const { items } of DATA) {
+        const found = items.find(i => i.slug === slug);
+        if (found) { label = found.label; break; }
+      }
+
+      pill.classList.toggle('done', isDone);
+      pill.innerHTML = (isDone ? '<span class="pill-done-dot">●</span>' : '') + escH(label);
+    }
+
+    /* ================================================================
+       9. EVENT DELEGATION — year toggles, variant selection, close
+    ================================================================ */
+    document.addEventListener('click', e => {
+      const target = e.target.closest('[data-action]');
+      if (!target) return;
+
+      switch (target.dataset.action) {
+
+        case 'toggle-year': {
+          const year = isNaN(Number(target.dataset.year)) ? target.dataset.year : Number(target.dataset.year);
+          if (state.openYears.has(year)) {
+            state.openYears.delete(year);
+          } else {
+            state.openYears.add(year);
+          }
+          renderYearList(); /* re-render only the year list */
+          break;
+        }
+
+        case 'select-variant': {
+          const slug = target.dataset.slug;
+          /* Clicking the active variant toggles it off */
+          if (state.selectedSlug === slug) {
+            state.selectedSlug = null;
+          } else {
+            state.selectedSlug = slug;
+            /* Auto-open that year */
+            for (const { year, items } of DATA) {
+              if (items.some(i => i.slug === slug)) {
+                state.openYears.add(year);
+                break;
+              }
+            }
+          }
+          renderYearList();
+          renderVariantPanel();
+          /* Scroll panel into view */
+          if (state.selectedSlug) {
+            setTimeout(() => {
+              document.getElementById('variant-panel')?.scrollIntoView({
+                behavior: 'smooth', block: 'start'
+              });
+            }, 60);
+          }
+          break;
+        }
+
+        case 'close-panel': {
+          state.selectedSlug = null;
+          renderYearList();
+          renderVariantPanel();
+          break;
+        }
+      }
+    });
+
+    /* ================================================================
+       10. INIT
+    ================================================================ */
+    document.addEventListener('DOMContentLoaded', renderApp);
+
+    function renderApp() {
+      initProfiles();
+      attachProfileListeners();
+      renderYearList();
+      renderVariantPanel();
+    }
+
+  </script>
+</body>
+</html>
