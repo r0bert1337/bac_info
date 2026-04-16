@@ -29,6 +29,9 @@
       --text-muted:   #7070a0;
       --text-dim:     #3a3a5c;
       --radius:       8px;
+      --font-display: 'Syne', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-body:    'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+      --font-mono:    'JetBrains Mono', 'Cascadia Code', 'Fira Code', ui-monospace, Consolas, monospace;
     }
 
     /* ================================================================
@@ -40,7 +43,7 @@
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       min-height: 100vh;
       position: relative;
       overflow-x: hidden;
@@ -81,7 +84,7 @@
     }
 
     .header-title {
-      font-family: 'Syne', sans-serif;
+      font-family: var(--font-display);
       font-weight: 800;
       font-size: 24px;
       color: var(--text);
@@ -91,14 +94,14 @@
     }
 
     .header-sub {
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       font-weight: 400;
       font-size: 13px;
       color: var(--text-muted);
     }
 
     .header-status {
-      font-family: 'JetBrains Mono', monospace;
+      font-family: var(--font-mono);
       font-size: 11px;
       color: var(--flag-ai);
       display: flex;
@@ -158,7 +161,7 @@
     }
 
     .year-label {
-      font-family: 'Syne', sans-serif;
+      font-family: var(--font-display);
       font-weight: 700;
       font-size: 28px;
       color: var(--text);
@@ -166,7 +169,7 @@
     }
 
     .year-count {
-      font-family: 'JetBrains Mono', monospace;
+      font-family: var(--font-mono);
       font-size: 11px;
       color: var(--text-muted);
     }
@@ -199,7 +202,7 @@
     }
 
     .year-body.open {
-      max-height: 800px;
+      max-height: 400px;
       border-left-color: var(--accent);
     }
 
@@ -218,7 +221,7 @@
       align-items: center;
       padding: 6px 16px;
       border-radius: 20px;
-      font-family: 'JetBrains Mono', monospace;
+      font-family: var(--font-mono);
       font-size: 12px;
       color: var(--text-muted);
       border: 1px solid var(--border);
@@ -279,7 +282,7 @@
     }
 
     .panel-title {
-      font-family: 'Syne', sans-serif;
+      font-family: var(--font-display);
       font-weight: 700;
       font-size: 22px;
       color: var(--text);
@@ -328,7 +331,7 @@
     }
 
     .section-title {
-      font-family: 'Syne', sans-serif;
+      font-family: var(--font-display);
       font-weight: 700;
       font-size: 16px;
       color: var(--text);
@@ -350,7 +353,7 @@
     }
 
     .pdf-label {
-      font-family: 'JetBrains Mono', monospace;
+      font-family: var(--font-mono);
       font-size: 11px;
       color: var(--text-muted);
     }
@@ -359,7 +362,7 @@
       display: inline-flex;
       align-items: center;
       gap: 7px;
-      font-family: 'JetBrains Mono', monospace;
+      font-family: var(--font-mono);
       font-size: 14px;
       font-weight: 500;
       color: var(--flag-ai);
@@ -392,6 +395,24 @@
       display: block;
     }
 
+    .pdf-fallback {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 620px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--text-muted);
+      gap: 8px;
+    }
+
+    .pdf-fallback a {
+      color: var(--flag-ai);
+      text-decoration: none;
+    }
+
+    .pdf-fallback a:hover { text-decoration: underline; }
+
     /* ================================================================
        SUBIECTUL I — exercise rows
     ================================================================ */
@@ -406,7 +427,7 @@
     .exercise-row.last-row { border-bottom: none; }
 
     .ex-label {
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       font-weight: 500;
       font-size: 13px;
       color: var(--text-muted);
@@ -424,7 +445,7 @@
       border: 1px solid var(--border);
       background: var(--surface2);
       color: var(--text-muted);
-      font-family: 'JetBrains Mono', monospace;
+      font-family: var(--font-mono);
       font-weight: 500;
       font-size: 13px;
       cursor: pointer;
@@ -463,7 +484,7 @@
       border: 1px solid var(--border);
       background: var(--surface2);
       color: var(--text-dim);
-      font-family: 'JetBrains Mono', monospace;
+      font-family: var(--font-mono);
       font-weight: 500;
       font-size: 11px;
       cursor: pointer;
@@ -498,7 +519,7 @@
        TEXTAREAS
     ================================================================ */
     .notes-label {
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       font-size: 13px;
       color: var(--text-muted);
       display: block;
@@ -513,7 +534,7 @@
       border: 1px solid var(--border);
       border-radius: 6px;
       padding: 10px 12px;
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       font-size: 13px;
       min-height: 80px;
       resize: vertical;
@@ -527,7 +548,7 @@
 
     /* Code font textareas — Sub II & III */
     .code-area {
-      font-family: 'JetBrains Mono', monospace !important;
+      font-family: var(--font-mono) !important;
       font-size: 13px;
       background: #080810 !important;
       min-height: 140px;
@@ -535,7 +556,7 @@
     }
 
     .code-area-lg {
-      font-family: 'JetBrains Mono', monospace !important;
+      font-family: var(--font-mono) !important;
       font-size: 13px;
       background: #080810 !important;
       min-height: 220px;
@@ -556,7 +577,7 @@
     }
 
     .exercise-block-title {
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       font-weight: 500;
       font-size: 14px;
       color: var(--text);
@@ -573,7 +594,7 @@
     }
 
     .s3-label {
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       font-weight: 500;
       font-size: 14px;
       color: var(--text);
@@ -588,7 +609,7 @@
     }
 
     .gen-notes-sub {
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       font-size: 13px;
       color: var(--text-muted);
       margin-top: -8px;
@@ -613,7 +634,7 @@
     .btn-terminat {
       padding: 10px 28px;
       border-radius: 20px;
-      font-family: 'JetBrains Mono', monospace;
+      font-family: var(--font-mono);
       font-size: 13px;
       background: transparent;
       border: 1px solid var(--border);
@@ -655,7 +676,7 @@
       cursor: pointer;
       user-select: none;
       transition: border-color 150ms ease, background 150ms ease;
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       font-size: 13px;
       color: var(--text);
       max-width: 180px;
@@ -714,7 +735,7 @@
       padding: 8px 12px;
       cursor: pointer;
       transition: background 120ms ease;
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       font-size: 13px;
       color: var(--text);
       gap: 8px;
@@ -792,7 +813,7 @@
       border: 1px solid transparent;
       background: transparent;
       color: var(--text-muted);
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       font-size: 13px;
       cursor: pointer;
       transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
@@ -823,7 +844,7 @@
       border: 1px solid var(--border);
       border-radius: 6px;
       padding: 6px 9px;
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       font-size: 13px;
       outline: none;
       transition: border-color 150ms ease;
@@ -838,7 +859,7 @@
       border: 1px solid var(--accent);
       background: var(--accent);
       color: #fff;
-      font-family: 'JetBrains Mono', monospace;
+      font-family: var(--font-mono);
       font-size: 12px;
       cursor: pointer;
       transition: opacity 150ms ease;
@@ -854,7 +875,7 @@
       border: 1px solid var(--accent);
       background: var(--accent);
       color: #fff;
-      font-family: 'JetBrains Mono', monospace;
+      font-family: var(--font-mono);
       font-size: 12px;
       cursor: pointer;
       transition: opacity 150ms ease;
@@ -875,7 +896,7 @@
     #profile-merge-wrap.visible { display: flex; }
 
     .profile-merge-label {
-      font-family: 'JetBrains Mono', monospace;
+      font-family: var(--font-mono);
       font-size: 10px;
       color: var(--text-muted);
       line-height: 1.4;
@@ -895,7 +916,7 @@
       border: 1px solid var(--border);
       border-radius: 6px;
       padding: 6px 8px;
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       font-size: 12px;
       outline: none;
       cursor: pointer;
@@ -910,7 +931,7 @@
       border: 1px solid var(--accent);
       background: var(--accent);
       color: #fff;
-      font-family: 'JetBrains Mono', monospace;
+      font-family: var(--font-mono);
       font-size: 12px;
       cursor: pointer;
       transition: opacity 150ms ease;
@@ -931,7 +952,7 @@
       border: 1px solid #e05555;
       border-radius: var(--radius);
       padding: 13px 16px;
-      font-family: 'JetBrains Mono', monospace;
+      font-family: var(--font-mono);
       font-size: 12px;
       color: #e07070;
       z-index: 9999;
@@ -1077,7 +1098,6 @@
         { slug: "2021_toamna",   label: "Sesiunea toamna" },
         { slug: "2021_speciala", label: "Sesiunea speciala" },
         { slug: "2021_simulare", label: "Simulare" },
-        { slug: "2021_modele",   label: "Modele de subiecte" },
         { slug: "2021_test_1",   label: "Test de antrenament 1" },
         { slug: "2021_test_2",   label: "Test de antrenament 2" },
         { slug: "2021_test_3",   label: "Test de antrenament 3" },
@@ -1195,6 +1215,10 @@
        3. HELPERS
     ================================================================ */
     let _storageWarnShown = false;
+    function isQuotaExceededError(e) {
+      return e && (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED');
+    }
+
     function showStorageWarning() {
       if (_storageWarnShown) return;
       _storageWarnShown = true;
@@ -1205,16 +1229,66 @@
       }
     }
 
-    function save(key, val) {
+    function setStorageItem(key, val, { warn = true } = {}) {
       try {
         localStorage.setItem(key, val);
+        return true;
       } catch (e) {
-        if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+        if (warn && isQuotaExceededError(e)) {
           showStorageWarning();
         }
+        return false;
       }
     }
-    function load(key, def = '')  { return localStorage.getItem(key) ?? def; }
+
+    function getStorageItem(key, def = null) {
+      try {
+        return localStorage.getItem(key) ?? def;
+      } catch {
+        return def;
+      }
+    }
+
+    function removeStorageItem(key) {
+      try {
+        localStorage.removeItem(key);
+        return true;
+      } catch {
+        return false;
+      }
+    }
+
+    function storageKeys() {
+      try {
+        return Object.keys(localStorage);
+      } catch {
+        return [];
+      }
+    }
+
+    function writeBatch(entries) {
+      const written = [];
+      try {
+        for (const [key, val] of entries) {
+          localStorage.setItem(key, val);
+          written.push(key);
+        }
+        return true;
+      } catch (e) {
+        written.forEach(key => {
+          try { localStorage.removeItem(key); } catch {}
+        });
+        if (isQuotaExceededError(e)) {
+          showStorageWarning();
+        }
+        return false;
+      }
+    }
+
+    function save(key, val) {
+      setStorageItem(key, val);
+    }
+    function load(key, def = '')  { return getStorageItem(key, def); }
 
     /** localStorage key: bac_{profileId}_{slug}_{field} */
     function lk(slug, field)      { return 'bac_' + PROFILE_ID + '_' + slug + '_' + field; }
@@ -1225,26 +1299,26 @@
     let PROFILE_ID = 'default';
 
     function getProfiles() {
-      try { return JSON.parse(localStorage.getItem('bac__profiles') || 'null') || []; }
+      try { return JSON.parse(getStorageItem('bac__profiles', 'null')) || []; }
       catch { return []; }
     }
 
-    function saveProfiles(arr) { localStorage.setItem('bac__profiles', JSON.stringify(arr)); }
-    function getActiveProfileId() { return localStorage.getItem('bac__active') || 'default'; }
-    function setActiveProfileId(id) { localStorage.setItem('bac__active', id); }
+    function saveProfiles(arr) {
+      return setStorageItem('bac__profiles', JSON.stringify(arr));
+    }
+    function getActiveProfileId() { return getStorageItem('bac__active', 'default'); }
+    function setActiveProfileId(id) { setStorageItem('bac__active', id, { warn: false }); }
 
     /** One-time migration: copy old bac_{slug}_{field} keys → bac_default_{slug}_{field} */
     function migrateIfNeeded() {
-      if (localStorage.getItem('bac__migrated') === '1') return;
-      Object.keys(localStorage)
+      if (getStorageItem('bac__migrated') === '1') return;
+      const entries = storageKeys()
         .filter(k => k.startsWith('bac_') && !k.startsWith('bac__'))
-        .forEach(k => {
-          const newKey = 'bac_default_' + k.slice(4);
-          if (!localStorage.getItem(newKey)) {
-            localStorage.setItem(newKey, localStorage.getItem(k));
-          }
-        });
-      localStorage.setItem('bac__migrated', '1');
+        .filter(k => !getStorageItem('bac_default_' + k.slice(4)))
+        .map(k => ['bac_default_' + k.slice(4), getStorageItem(k, '')]);
+
+      entries.push(['bac__migrated', '1']);
+      writeBatch(entries);
     }
 
     function initProfiles() {
@@ -1321,15 +1395,21 @@
       const id = 'p_' + Date.now();
       const profiles = getProfiles();
       profiles.push({ id, name });
-      saveProfiles(profiles);
+      if (!saveProfiles(profiles)) return;
       switchProfile(id);
     }
 
     function deleteProfile(id) {
       let profiles = getProfiles();
       if (profiles.length <= 1) return; /* never delete last profile */
-      profiles = profiles.filter(p => p.id !== id);
-      saveProfiles(profiles);
+      const nextProfiles = profiles.filter(p => p.id !== id);
+      if (!saveProfiles(nextProfiles)) return;
+
+      const prefix = 'bac_' + id + '_';
+      storageKeys()
+        .filter(k => k.startsWith(prefix))
+        .forEach(removeStorageItem);
+      profiles = nextProfiles;
       if (PROFILE_ID === id) {
         PROFILE_ID = profiles[0].id;
         setActiveProfileId(PROFILE_ID);
@@ -1371,18 +1451,18 @@
       const current = profiles.find(p => p.id === PROFILE_ID) || { id: PROFILE_ID, name: PROFILE_ID };
       const prefix = 'bac_' + PROFILE_ID + '_';
       const data = {};
-      Object.keys(localStorage)
+      storageKeys()
         .filter(k => k.startsWith(prefix))
-        .forEach(k => { data[k.slice(prefix.length)] = localStorage.getItem(k); });
+        .forEach(k => { data[k.slice(prefix.length)] = getStorageItem(k, ''); });
 
       const payload = { profileName: current.name, exportedAt: new Date().toISOString(), data };
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'bac_profil_' + current.name.replace(/\s+/g, '_') + '.json';
+      a.download = 'bac_profil_' + current.name.replace(/[\\/:*?"<>|\s]/g, '_') + '.json';
       a.click();
-      URL.revokeObjectURL(url);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
       closeProfileDropdown();
     }
 
@@ -1395,15 +1475,23 @@
             alert('Fișier invalid — nu conține date de profil.');
             return;
           }
-          const name = payload.profileName || file.name.replace(/\.json$/i, '');
+          const name = typeof payload.profileName === 'string' && payload.profileName.trim()
+            ? payload.profileName.trim()
+            : file.name.replace(/\.json$/i, '');
           const id = 'p_' + Date.now();
           const prefix = 'bac_' + id + '_';
-          Object.entries(payload.data).forEach(([k, v]) => {
-            localStorage.setItem(prefix + k, v);
-          });
+          const entries = Object.entries(payload.data).map(([k, v]) => [prefix + k, String(v ?? '')]);
+          if (!writeBatch(entries)) {
+            alert('Eroare la importul profilului. Verifică spațiul disponibil și încearcă din nou.');
+            return;
+          }
           const profiles = getProfiles();
           profiles.push({ id, name });
-          saveProfiles(profiles);
+          if (!saveProfiles(profiles)) {
+            entries.forEach(([key]) => removeStorageItem(key));
+            alert('Eroare la importul profilului. Lista de profiluri nu a putut fi salvată.');
+            return;
+          }
           switchProfile(id);
         } catch {
           alert('Eroare la citirea fișierului JSON.');
@@ -1459,7 +1547,7 @@
 
     /** A value is "meaningful" if the user actually entered/selected something */
     function isMeaningful(val) {
-      return val !== null && val !== '' && val !== '0';
+      return val !== null && val !== '';
     }
 
     function mergeProfiles(primaryId, secondaryId) {
@@ -1477,29 +1565,38 @@
       const newPrefix    = 'bac_' + newId + '_';
       const priPrefix    = 'bac_' + primaryId + '_';
       const secPrefix    = 'bac_' + secondaryId + '_';
+      const entries = [];
 
       /* Step 1 — copy meaningful values from secondary (fills gaps) */
-      Object.keys(localStorage)
+      storageKeys()
         .filter(k => k.startsWith(secPrefix))
         .forEach(k => {
-          const val = localStorage.getItem(k);
+          const val = getStorageItem(k);
           if (isMeaningful(val)) {
-            localStorage.setItem(newPrefix + k.slice(secPrefix.length), val);
+            entries.push([newPrefix + k.slice(secPrefix.length), val]);
           }
         });
 
       /* Step 2 — overwrite with meaningful values from primary (primary wins) */
-      Object.keys(localStorage)
+      storageKeys()
         .filter(k => k.startsWith(priPrefix))
         .forEach(k => {
-          const val = localStorage.getItem(k);
+          const val = getStorageItem(k);
           if (isMeaningful(val)) {
-            localStorage.setItem(newPrefix + k.slice(priPrefix.length), val);
+            entries.push([newPrefix + k.slice(priPrefix.length), val]);
           }
         });
 
+      if (!writeBatch(entries)) {
+        alert('Nu s-a putut crea profilul combinat. Verifică spațiul disponibil și încearcă din nou.');
+        return;
+      }
       profiles.push({ id: newId, name: newName });
-      saveProfiles(profiles);
+      if (!saveProfiles(profiles)) {
+        entries.forEach(([key]) => removeStorageItem(key));
+        alert('Nu s-a putut salva lista de profiluri după combinare.');
+        return;
+      }
       switchProfile(newId);
     }
 
@@ -1590,12 +1687,14 @@
     }
 
     /** Escape HTML attribute values */
-    function escA(s) {
+    function escA(value) {
+      const s = String(value ?? '');
       return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
     }
 
     /** Escape HTML text nodes */
-    function escH(s) {
+    function escH(value) {
+      const s = String(value ?? '');
       return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 
@@ -1716,11 +1815,13 @@
             <span class="pdf-label">📄 ${escH(slug)}.pdf</span>
             ${baremHTML}
           </div>
-          <embed
+          <object
             class="pdf-embed"
-            src="sources/${escA(slug)}.pdf"
+            data="sources/${escA(slug)}.pdf"
             type="application/pdf"
           >
+            <p class="pdf-fallback">PDF-ul nu poate fi afișat. <a href="sources/${escA(slug)}.pdf" target="_blank" rel="noopener">↗ Deschide în tab nou</a></p>
+          </object>
         </div>
 
         <!-- Subiectul I -->
@@ -1752,7 +1853,7 @@
           <div class="section-title">📝 Notițe generale</div>
           <p class="gen-notes-sub">Ce vreau să rețin după această variantă</p>
           <textarea id="gen-notes"
-            style="font-family:'DM Sans',sans-serif;font-size:14px;min-height:130px;"
+            style="font-family:var(--font-body);font-size:14px;min-height:130px;"
             placeholder="Unde am greșit, ce trebuie aprofundat, observații..."></textarea>
         </div>
 
@@ -1861,7 +1962,7 @@
       /* Sub III — migrate old single s3_txt into ex1 if needed */
       if (!load(p('s3_ex1_txt')) && load(p('s3_txt'))) {
         save(p('s3_ex1_txt'), load(p('s3_txt')));
-        localStorage.removeItem(lk(slug, 's3_txt'));
+        removeStorageItem(lk(slug, 's3_txt'));
       }
       for (let n = 1; n <= 3; n++) {
         setTA('s3-ex' + n + '-txt', load(p('s3_ex' + n + '_txt')));
