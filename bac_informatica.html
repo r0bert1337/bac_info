@@ -844,8 +844,8 @@
       border: 1px solid var(--border);
       border-radius: 6px;
       padding: 6px 9px;
-      font-family: var(--font-body);
-      font-size: 13px;
+      font-family: var(--font-mono);
+      font-size: 12px;
       outline: none;
       transition: border-color 150ms ease;
     }
@@ -970,6 +970,96 @@
       from { opacity: 0; transform: translateY(6px); }
       to   { opacity: 1; transform: translateY(0); }
     }
+
+    /* ================================================================
+       EDITOR CHROME
+    ================================================================ */
+    .editor-chrome {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      transition: border-color 150ms ease;
+    }
+
+    .editor-chrome:focus-within { border-color: var(--accent); }
+
+    .editor-titlebar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 10px;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      user-select: none;
+    }
+
+    .editor-dots {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .editor-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      opacity: 0.55;
+    }
+
+    .editor-dot.dot-red    { background: #ff5f57; }
+    .editor-dot.dot-yellow { background: #febc2e; }
+    .editor-dot.dot-green  { background: #28c840; }
+
+    .editor-filename {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      flex: 1;
+      text-align: center;
+    }
+
+    .editor-langbadge {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-dim);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 6px;
+      flex-shrink: 0;
+      letter-spacing: 0.04em;
+    }
+
+    .editor-chrome textarea {
+      border: none !important;
+      border-radius: 0 !important;
+    }
+
+    .notes-chrome textarea {
+      font-family: var(--font-mono) !important;
+      font-size: 12px !important;
+      background: var(--bg) !important;
+      line-height: 1.75;
+    }
+
+    /* Dark scrollbars for textareas */
+    textarea::-webkit-scrollbar        { width: 6px; cursor: default; }
+    textarea::-webkit-scrollbar-track  { background: var(--bg); cursor: default; }
+    textarea::-webkit-scrollbar-thumb  { background: var(--border); border-radius: 3px; cursor: default; }
+    textarea::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+    /* Terminal prompt on profile name inputs */
+    #profile-new-name-wrap.visible::before,
+    #profile-ren-name-wrap.visible::before {
+      content: '›';
+      font-family: var(--font-mono);
+      font-size: 16px;
+      color: var(--accent);
+      align-self: center;
+      padding-left: 8px;
+      flex-shrink: 0;
+    }
   </style>
 </head>
 <body>
@@ -995,11 +1085,11 @@
             <button class="profile-action-btn" id="btn-merge-profiles">⇔ Combină profiluri</button>
           </div>
           <div id="profile-new-name-wrap">
-            <input id="profile-new-name-input" type="text" placeholder="Nume profil…" maxlength="40">
+            <input id="profile-new-name-input" type="text" placeholder="profil_nou" maxlength="40">
             <button id="profile-new-confirm">OK</button>
           </div>
           <div id="profile-ren-name-wrap">
-            <input id="profile-ren-name-input" type="text" placeholder="Nume nou…" maxlength="40">
+            <input id="profile-ren-name-input" type="text" placeholder="nume_nou" maxlength="40">
             <button id="profile-ren-confirm">OK</button>
           </div>
           <div id="profile-merge-wrap">
@@ -1201,6 +1291,79 @@
       '2025_toamna':    'https://www.pbinfo.ro/resurse/9dc152/examene/2025/E_d_informatica_2025_sp_MI_bar_04_LRO.pdf',
       '2025_vara':      'https://www.pbinfo.ro/resurse/9dc152/examene/2025/E_d_informatica_2025_sp_MI_bar_01_LRO.pdf',
       '2026_modele':    'https://www.pbinfo.ro/resurse/9dc152/examene/2026/E_d_informatica_2026_sp_MI_bar_model.pdf',
+    };
+
+    /* ================================================================
+       1c. SUBIECT LINKS — remote fallback PDFs keyed by slug
+    ================================================================ */
+    const SUBIECT = {
+      '2018_toamna':     'https://www.pbinfo.ro/resurse/9dc152/examene/2018-august/E_d_Informatica_C_sp_MI_2018_var_01_LRO.pdf',
+      '2018_speciala':   'https://www.pbinfo.ro/resurse/9dc152/examene/2018-special/E_d_Informatica_C_sp_MI_2018_var_09_LRO.pdf',
+      '2018_vara':       'https://www.pbinfo.ro/resurse/9dc152/examene/2018-iunie/E_d_Informatica_C_sp_MI_2018_var_02_LRO.pdf',
+      '2019_simulare':   'https://www.pbinfo.ro/resurse/9dc152/examene/2019/simulare/E_d_Informatica_2019_sp_MI_C_var_simulare_LRO.pdf',
+      '2019_toamna':     'https://www.pbinfo.ro/resurse/9dc152/examene/2019/2019-august-septembrie/E_d_Informatica_2019_sp_MI_C_var_02_LRO.pdf',
+      '2019_speciala':   'https://www.pbinfo.ro/resurse/9dc152/examene/2019/2019-speciala/E_d_Informatica_2019_sp_MI_C_var_01_LRO.pdf',
+      '2019_vara':       'https://www.pbinfo.ro/resurse/9dc152/examene/2019/2019-iunie-iulie/E_d_Informatica_2019_sp_MI_C_var_04_LRO.pdf',
+      '2020_modele':     'https://www.pbinfo.ro/resurse/9dc152/examene/2020/E_d_Informatica_2020_sp_MI_C_var_model_LRO.pdf',
+      '2020_speciala':   'https://www.pbinfo.ro/resurse/9dc152/examene/2020/E_d_Informatica_2020_sp_MI_C_var_02_LRO.pdf',
+      '2020_toamna':     'https://www.pbinfo.ro/resurse/9dc152/examene/2020/E_d_Informatica_2020_sp_MI_C_var_05_LRO.pdf',
+      '2020_vara':       'https://www.pbinfo.ro/resurse/9dc152/examene/2020/E_d_Informatica_2020_sp_MI_C_var_06_LRO.pdf',
+      '2021_simulare':   'https://www.pbinfo.ro/resurse/9dc152/examene/2021/simulare/E_d_Informatica_2021_sp_MI_C_var_Simulare_LRO.pdf',
+      '2021_speciala':   'https://www.pbinfo.ro/resurse/9dc152/examene/2021/ses_speciala/E_d_Informatica_2021_sp_MI_C_var_07.pdf',
+      '2021_test_1':     'https://www.pbinfo.ro/resurse/9dc152/examene/2021/antrenament/E_d_Informatica_2021_sp_MI_C_Test_01.pdf',
+      '2021_test_2':     'https://www.pbinfo.ro/resurse/9dc152/examene/2021/antrenament/E_d_Informatica_2021_sp_MI_C_Test_02.pdf',
+      '2021_test_3':     'https://www.pbinfo.ro/resurse/9dc152/examene/2021/antrenament/E_d_Informatica_2021_sp_MI_C_Test_03.pdf',
+      '2021_test_4':     'https://www.pbinfo.ro/resurse/9dc152/examene/2021/antrenament/E_d_Informatica_2021_sp_MI_C_Test_04.pdf',
+      '2021_test_5':     'https://www.pbinfo.ro/resurse/9dc152/examene/2021/antrenament/E_d_Informatica_2021_sp_MI_C_Test_05.pdf',
+      '2021_test_6':     'https://www.pbinfo.ro/resurse/9dc152/examene/2021/antrenament/E_d_Informatica_2021_sp_MI_C_Test_06.pdf',
+      '2021_test_7':     'https://www.pbinfo.ro/resurse/9dc152/examene/2021/antrenament/E_d_Informatica_2021_sp_MI_C_Test_07.pdf',
+      '2021_test_8':     'https://www.pbinfo.ro/resurse/9dc152/examene/2021/antrenament/E_d_Informatica_2021_sp_MI_C_Test_08.pdf',
+      '2021_test_9':     'https://www.pbinfo.ro/resurse/9dc152/examene/2021/antrenament/E_d_Informatica_2021_sp_MI_C_Test_09.pdf',
+      '2021_test_10':    'https://www.pbinfo.ro/resurse/9dc152/examene/2021/antrenament/E_d_Informatica_2021_sp_MI_C_Test_10.pdf',
+      '2021_test_11':    'https://www.pbinfo.ro/resurse/9dc152/examene/2021/antrenament/E_d_Informatica_2021_sp_MI_C_Test_11.pdf',
+      '2021_test_12':    'https://www.pbinfo.ro/resurse/9dc152/examene/2021/antrenament/E_d_Informatica_2021_sp_MI_C_Test_12.pdf',
+      '2021_toamna':     'https://www.pbinfo.ro/resurse/9dc152/examene/2021/august/E_d_Informatica_2021_sp_MI_C_var_04_LRO.pdf',
+      '2021_vara':       'https://www.pbinfo.ro/resurse/9dc152/examene/2021/iunie-iulie/E_d_Informatica_2021_sp_MI_C_var_01_LRO.pdf',
+      '2022_simulare':   'https://www.pbinfo.ro/resurse/9dc152/examene/2022/E_d_informatica_2022_sp_MI_C_var_simulare_LRO.pdf',
+      '2022_speciala':   'https://www.pbinfo.ro/resurse/9dc152/examene/2022/E_d_informatica_2022_sp_MI_C_var_04_LRO.pdf',
+      '2022_toamna':     'https://www.pbinfo.ro/resurse/9dc152/examene/2022/E_d_informatica_2022_sp_MI_C_var_05_LRO.pdf',
+      '2022_vara':       'https://www.pbinfo.ro/resurse/9dc152/examene/2022/E_d_informatica_2022_sp_MI_C_var_01_LRO.pdf',
+      '2023_modele':     'https://www.pbinfo.ro/resurse/9dc152/examene/2023/E_D_Informatica_2023_sp_MI_C_var_model.pdf',
+      '2023_simulare':   'https://www.pbinfo.ro/resurse/9dc152/examene/2023/E_d_Informatica_2023_sp_MI_C_var_simulare_LRO.pdf',
+      '2023_speciala':   'https://www.pbinfo.ro/resurse/9dc152/examene/2023/E_d_Informatica_2023_sp_MI_C_var_06_LRO.pdf',
+      '2023_toamna':     'https://www.pbinfo.ro/resurse/9dc152/examene/2023/E_d_Informatica_2023_sp_MI_C_var_07_LRO.pdf',
+      '2023_vara':       'https://www.pbinfo.ro/resurse/9dc152/examene/2023/E_d_Informatica_2023_sp_MI_C_var_05_LRO.pdf',
+      '2024_modele':     'https://www.pbinfo.ro/resurse/9dc152/examene/2024/E_D_Informatica_2024_sp_MI_C_var_model.pdf',
+      '2024_simulare':   'https://www.pbinfo.ro/resurse/9dc152/examene/2024/sim/E_d_Informatica_2024_MI_C_var_simulare_LRO.pdf',
+      '2024_speciala':   'https://www.pbinfo.ro/resurse/9dc152/examene/2024/E_d_Informatica_2024_sp_MI_C_var_04_LRO.pdf',
+      '2024_toamna':     'https://www.pbinfo.ro/resurse/9dc152/examene/2024/E_d_Informatica_2024_sp_MI_C_var_08_LRO.pdf',
+      '2024_vara':       'https://www.pbinfo.ro/resurse/9dc152/examene/2024/E_d_Informatica_2024_sp_MI_C_var_03_LRO.pdf',
+      '2025_modele':     'https://www.pbinfo.ro/resurse/9dc152/examene/2025/E_d_informatica_2025_sp_MI_C_var_model.pdf',
+      '2025_simulare':   'https://www.pbinfo.ro/resurse/9dc152/examene/2025/E_d_Informatica_2025_sp_MI_C_var_Simulare_LRO.pdf',
+      '2025_speciala':   'https://www.pbinfo.ro/resurse/9dc152/examene/2025/E_d_Informatica_2025_sp_MI_C_var_06_LRO.pdf',
+      '2025_toamna':     'https://www.pbinfo.ro/resurse/9dc152/examene/2025/E_D_Informatica_2025_sp_MI_C_var_04_LRO.pdf',
+      '2025_vara':       'https://www.pbinfo.ro/resurse/9dc152/examene/2025/E_d_Informatica_2025_sp_MI_C_var_01_LRO.pdf',
+      '2026_modele':     'https://www.pbinfo.ro/resurse/9dc152/examene/2026/E_d_informatica_2026_sp_MI_C_var_model.pdf',
+      'mec2020_test_1':  'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_C_var_test_01.pdf',
+      'mec2020_test_2':  'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_C_var_test_02.pdf',
+      'mec2020_test_3':  'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_C_var_test_03.pdf',
+      'mec2020_test_4':  'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_C_var_test_04.pdf',
+      'mec2020_test_5':  'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_C_var_test_05.pdf',
+      'mec2020_test_6':  'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_C_var_test_06.pdf',
+      'mec2020_test_7':  'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_C_var_test_07.pdf',
+      'mec2020_test_8':  'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_C_var_test_08.pdf',
+      'mec2020_test_9':  'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_C_var_test_09.pdf',
+      'mec2020_test_10': 'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_C_var_test_10.pdf',
+      'mec2020_test_11': 'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_C_var_test_11.pdf',
+      'mec2020_test_12': 'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_C_var_test_12.pdf',
+      'mec2020_test_13': 'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_C_var_test_13.pdf',
+      'mec2020_test_14': 'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_C_var_test_14.pdf',
+      'mec2020_test_15': 'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_C_var_test_15.pdf',
+      'mec2020_test_16': 'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_C_var_test_16.pdf',
+      'mec2020_test_17': 'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_C_var_test_17.pdf',
+      'mec2020_test_18': 'https://www.pbinfo.ro/resurse/9dc152/examene/2020/1-18/E_d_Informatica_2020_sp_MI_C_var_test_18.pdf',
+      'mec2020_test_19': 'https://www.pbinfo.ro/resurse/9dc152/examene/2020/19-20/E_d_Informatica_2020_sp_MI_C_var_test_19.pdf',
+      'mec2020_test_20': 'https://www.pbinfo.ro/resurse/9dc152/examene/2020/19-20/E_d_Informatica_2020_sp_MI_C_var_test_20.pdf',
     };
 
     /* ================================================================
@@ -1757,6 +1920,48 @@
     }
 
     /* ================================================================
+       4b. PDF FALLBACK — swap <object> to remote if local 404s
+    ================================================================ */
+    async function initPdfViewer(slug) {
+      /* Let the browser attempt to load the local PDF first.
+         When <object> fails, it renders its fallback children —
+         we detect this by checking offsetHeight after a short wait. */
+      await new Promise(r => setTimeout(r, 1500));
+
+      /* Guard: user may have navigated away during the wait */
+      if (state.selectedSlug !== slug) return;
+
+      const panel      = document.getElementById('variant-panel');
+      const fallbackEl = panel && panel.querySelector('.pdf-fallback');
+
+      /* offsetHeight > 0 means the fallback paragraph is visible,
+         i.e. the <object> failed to display the local PDF */
+      if (!fallbackEl || fallbackEl.offsetHeight === 0) return;
+
+      const remoteUrl = SUBIECT[slug];
+      const obj       = panel.querySelector('.pdf-embed');
+      const labelEl   = panel.querySelector('.pdf-label');
+
+      if (remoteUrl && obj) {
+        /* Replace the stale <object> with a fresh one — setAttribute alone
+           won't re-trigger loading on an already-failed element in Chrome */
+        const newObj = document.createElement('object');
+        newObj.className = 'pdf-embed';
+        newObj.setAttribute('data', remoteUrl);
+        newObj.setAttribute('type', 'application/pdf');
+        newObj.innerHTML =
+          `<p class="pdf-fallback">PDF-ul nu poate fi afișat. ` +
+          `<a href="${remoteUrl}" target="_blank" rel="noopener">↗ Deschide în tab nou</a></p>`;
+        obj.replaceWith(newObj);
+        if (labelEl) {
+          labelEl.innerHTML =
+            `<span style="color:var(--flag-ai)">↗</span> pbinfo.ro` +
+            `<span style="color:var(--text-dim);font-size:10px;margin-left:5px;">(online)</span>`;
+        }
+      }
+    }
+
+    /* ================================================================
        5. RENDER — VARIANT PANEL
     ================================================================ */
     function renderVariantPanel() {
@@ -1783,6 +1988,7 @@
 
       restorePanel(slug);
       attachPanelListeners(slug);
+      initPdfViewer(slug);
 
       /* Trigger fade-in after two paint frames */
       requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -1829,7 +2035,18 @@
           <div class="section-title">Subiectul I — Grilă</div>
           ${buildSubIHTML(slug)}
           <label class="notes-label" for="s1-notes">Notițe — Subiectul I</label>
-          <textarea id="s1-notes" placeholder="Observații despre grilă..."></textarea>
+          <div class="editor-chrome notes-chrome">
+            <div class="editor-titlebar">
+              <div class="editor-dots">
+                <div class="editor-dot dot-red"></div>
+                <div class="editor-dot dot-yellow"></div>
+                <div class="editor-dot dot-green"></div>
+              </div>
+              <span class="editor-filename">notes_s1.txt</span>
+              <span class="editor-langbadge">TXT</span>
+            </div>
+            <textarea id="s1-notes" placeholder="// observații despre grilă..."></textarea>
+          </div>
         </div>
 
         <!-- Subiectul II -->
@@ -1837,7 +2054,18 @@
           <div class="section-title">Subiectul II — Probleme</div>
           ${buildSubIIHTML(slug)}
           <label class="notes-label" for="s2-notes">Notițe — Subiectul II</label>
-          <textarea id="s2-notes" placeholder="Observații despre probleme..."></textarea>
+          <div class="editor-chrome notes-chrome">
+            <div class="editor-titlebar">
+              <div class="editor-dots">
+                <div class="editor-dot dot-red"></div>
+                <div class="editor-dot dot-yellow"></div>
+                <div class="editor-dot dot-green"></div>
+              </div>
+              <span class="editor-filename">notes_s2.txt</span>
+              <span class="editor-langbadge">TXT</span>
+            </div>
+            <textarea id="s2-notes" placeholder="// observații despre probleme..."></textarea>
+          </div>
         </div>
 
         <!-- Subiectul III -->
@@ -1845,16 +2073,38 @@
           <div class="section-title">Subiectul III — Problemă Complexă</div>
           ${buildSubIIIHTML(slug)}
           <label class="notes-label" for="s3-notes">Notițe — Subiectul III</label>
-          <textarea id="s3-notes" placeholder="Observații..."></textarea>
+          <div class="editor-chrome notes-chrome">
+            <div class="editor-titlebar">
+              <div class="editor-dots">
+                <div class="editor-dot dot-red"></div>
+                <div class="editor-dot dot-yellow"></div>
+                <div class="editor-dot dot-green"></div>
+              </div>
+              <span class="editor-filename">notes_s3.txt</span>
+              <span class="editor-langbadge">TXT</span>
+            </div>
+            <textarea id="s3-notes" placeholder="// observații..."></textarea>
+          </div>
         </div>
 
         <!-- Notițe generale -->
         <div class="section gen-notes">
           <div class="section-title">📝 Notițe generale</div>
           <p class="gen-notes-sub">Ce vreau să rețin după această variantă</p>
-          <textarea id="gen-notes"
-            style="font-family:var(--font-body);font-size:14px;min-height:130px;"
-            placeholder="Unde am greșit, ce trebuie aprofundat, observații..."></textarea>
+          <div class="editor-chrome notes-chrome">
+            <div class="editor-titlebar">
+              <div class="editor-dots">
+                <div class="editor-dot dot-red"></div>
+                <div class="editor-dot dot-yellow"></div>
+                <div class="editor-dot dot-green"></div>
+              </div>
+              <span class="editor-filename">notes_general.md</span>
+              <span class="editor-langbadge">MD</span>
+            </div>
+            <textarea id="gen-notes"
+              style="min-height:130px;"
+              placeholder="// ce vreau să rețin după această variantă..."></textarea>
+          </div>
         </div>
 
         <!-- Terminat button -->
@@ -1898,8 +2148,19 @@
                 ${flagBtn('s2_ex'+n+'_fai', 'AI', 'flag-ai')}
               </div>
             </div>
-            <textarea id="s2-ex${n}-txt" class="code-area"
-              placeholder="Răspuns / cod C++ ..."></textarea>
+            <div class="editor-chrome">
+              <div class="editor-titlebar">
+                <div class="editor-dots">
+                  <div class="editor-dot dot-red"></div>
+                  <div class="editor-dot dot-yellow"></div>
+                  <div class="editor-dot dot-green"></div>
+                </div>
+                <span class="editor-filename">exercitiu_${n}.cpp</span>
+                <span class="editor-langbadge">C++</span>
+              </div>
+              <textarea id="s2-ex${n}-txt" class="code-area"
+                placeholder="// cod C++ ..."></textarea>
+            </div>
           </div>`;
       }
       return html;
@@ -1918,8 +2179,19 @@
                 ${flagBtn('s3_ex'+n+'_fai', 'AI', 'flag-ai')}
               </div>
             </div>
-            <textarea id="s3-ex${n}-txt" class="code-area-lg"
-              placeholder="Rezolvare / cod C++ ..."></textarea>
+            <div class="editor-chrome">
+              <div class="editor-titlebar">
+                <div class="editor-dots">
+                  <div class="editor-dot dot-red"></div>
+                  <div class="editor-dot dot-yellow"></div>
+                  <div class="editor-dot dot-green"></div>
+                </div>
+                <span class="editor-filename">rezolvare_${n}.cpp</span>
+                <span class="editor-langbadge">C++</span>
+              </div>
+              <textarea id="s3-ex${n}-txt" class="code-area-lg"
+                placeholder="// rezolvare / cod C++ ..."></textarea>
+            </div>
           </div>`;
       }
       return html;
