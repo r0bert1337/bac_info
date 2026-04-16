@@ -1060,6 +1060,88 @@
       padding-left: 8px;
       flex-shrink: 0;
     }
+
+    /* ================================================================
+       HEADER LEFT — profile + code theme stacked
+    ================================================================ */
+    .header-left {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 7px;
+    }
+
+    /* ================================================================
+       CODE THEME TOGGLE BUTTON
+    ================================================================ */
+    #code-theme-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px 4px 8px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      cursor: pointer;
+      transition: border-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
+      user-select: none;
+      white-space: nowrap;
+    }
+    #code-theme-btn:hover {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+    #code-theme-btn.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+    .cth-pill {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.6px;
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: var(--surface2);
+      color: var(--text-dim);
+      transition: background 150ms ease, color 150ms ease;
+    }
+    #code-theme-btn.active .cth-pill {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* ================================================================
+       CODEMIRROR INTEGRATION — blends with app dark theme
+    ================================================================ */
+    .CodeMirror {
+      height: auto !important;
+      min-height: 140px;
+      font-family: var(--font-mono) !important;
+      font-size: 12px !important;
+      line-height: 1.75 !important;
+      background: var(--bg) !important;
+      border: none !important;
+    }
+    .cm-editor-lg .CodeMirror { min-height: 220px; }
+    .CodeMirror-scroll        { min-height: 140px; }
+    .cm-editor-lg .CodeMirror-scroll { min-height: 220px; }
+    .CodeMirror-gutters {
+      background: var(--surface) !important;
+      border-right: 1px solid var(--border) !important;
+    }
+    .CodeMirror-linenumber    { color: var(--text-dim) !important; font-size: 11px !important; }
+    .CodeMirror-cursor        { border-left: 2px solid var(--accent) !important; }
+    .CodeMirror-selected,
+    .CodeMirror-focused .CodeMirror-selected { background: rgba(108,99,255,0.22) !important; }
+    .CodeMirror-activeline-background        { background: rgba(255,255,255,0.03) !important; }
+    .CodeMirror-scroll::-webkit-scrollbar       { width: 6px; height: 6px; }
+    .CodeMirror-scroll::-webkit-scrollbar-track { background: var(--bg); }
+    .CodeMirror-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    .CodeMirror-scroll::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
   </style>
 </head>
 <body>
@@ -1068,7 +1150,8 @@
 
     <!-- HEADER -->
     <header>
-      <!-- Profile Widget — top-left -->
+      <!-- Profile Widget + Code Theme toggle — top-left column -->
+      <div class="header-left">
       <div id="profile-widget">
         <div id="profile-trigger" title="Schimbă profilul">
           <span id="profile-avatar">👤</span>
@@ -1103,6 +1186,10 @@
         </div>
         <input type="file" id="profile-file-input" accept=".json" style="display:none">
       </div>
+      <button id="code-theme-btn">
+        ⌨ code theme <span class="cth-pill">OFF</span>
+      </button>
+      </div><!-- /.header-left -->
 
       <div>
         <div class="header-title">BAC Informatică</div>
@@ -1449,7 +1536,7 @@
     }
 
     function save(key, val) {
-      setStorageItem(key, val);
+      return setStorageItem(key, val);
     }
     function load(key, def = '')  { return getStorageItem(key, def); }
 
@@ -1457,9 +1544,127 @@
     function lk(slug, field)      { return 'bac_' + PROFILE_ID + '_' + slug + '_' + field; }
 
     /* ================================================================
+       CODE THEME — CodeMirror C++ syntax highlighting
+    ================================================================ */
+    let codeThemeEnabled = false;
+    let _cmLoaded  = false;
+    let _cmLoading = false;
+    let _cmQueue   = [];           // callbacks waiting for CM to load
+    const codeEditors = new Map(); // textarea-id → CodeMirror instance
+
+    function loadCodeMirror(cb) {
+      if (_cmLoaded)   { cb(); return; }
+      _cmQueue.push(cb);
+      if (_cmLoading) return;
+      _cmLoading = true;
+
+      function injectLink(href) {
+        const l = document.createElement('link');
+        l.rel  = 'stylesheet';
+        l.href = href;
+        document.head.appendChild(l);
+      }
+      function injectScript(src, onload, onerror) {
+        const s = document.createElement('script');
+        s.src    = src;
+        s.onload = onload;
+        if (onerror) s.onerror = onerror;
+        document.head.appendChild(s);
+      }
+
+      const base = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16';
+      injectLink(base + '/codemirror.min.css');
+      injectLink(base + '/theme/dracula.min.css');
+      const failLoad = () => {
+        _cmLoading = false;
+        _cmQueue = [];
+        codeThemeEnabled = false;
+        setStorageItem('bac__code_theme', '0', { warn: false });
+        updateCodeThemeBtn();
+        alert('Tema de cod nu a putut fi încărcată.');
+      };
+
+      injectScript(base + '/codemirror.min.js', () => {
+        injectScript(base + '/mode/clike/clike.min.js', () => {
+          _cmLoaded  = true;
+          _cmLoading = false;
+          _cmQueue.forEach(fn => fn());
+          _cmQueue = [];
+        }, failLoad);
+      }, failLoad);
+    }
+
+    function initCodeMirrors() {
+      if (!_cmLoaded) return;
+      const panel = document.getElementById('variant-panel');
+      if (!panel) return;
+      const slug = state.selectedSlug;
+      if (!slug) return;
+
+      panel.querySelectorAll('.code-area, .code-area-lg').forEach(ta => {
+        if (!ta.id || codeEditors.has(ta.id)) return;
+        const isLg  = ta.classList.contains('code-area-lg');
+        const field = ta.id.replace(/-/g, '_');
+        const key   = lk(slug, field);
+
+        const editor = CodeMirror.fromTextArea(ta, {
+          mode:              'text/x-c++src',
+          theme:             'dracula',
+          lineNumbers:       true,
+          tabSize:           2,
+          indentWithTabs:    false,
+          lineWrapping:      false,
+          styleActiveLine:   true,
+          extraKeys:         { Tab: cm => cm.execCommand('insertSoftTab') },
+        });
+        editor.setSize(null, isLg ? 220 : 140);
+        if (isLg) editor.getWrapperElement().classList.add('cm-editor-lg');
+        editor.on('change', cm => {
+          const value = cm.getValue();
+          if (!save(key, value)) {
+            const persisted = load(key, '');
+            if (persisted !== value) cm.setValue(persisted);
+          }
+        });
+        codeEditors.set(ta.id, editor);
+      });
+    }
+
+    function destroyCodeMirrors() {
+      codeEditors.forEach(editor => {
+        try { editor.toTextArea(); } catch (_) {}
+      });
+      codeEditors.clear();
+    }
+
+    function toggleCodeTheme() {
+      codeThemeEnabled = !codeThemeEnabled;
+      setStorageItem('bac__code_theme', codeThemeEnabled ? '1' : '0', { warn: false });
+      updateCodeThemeBtn();
+      if (codeThemeEnabled) {
+        loadCodeMirror(() => { if (state.selectedSlug) initCodeMirrors(); });
+      } else {
+        destroyCodeMirrors();
+      }
+    }
+
+    function updateCodeThemeBtn() {
+      const btn = document.getElementById('code-theme-btn');
+      if (!btn) return;
+      btn.classList.toggle('active', codeThemeEnabled);
+      btn.querySelector('.cth-pill').textContent = codeThemeEnabled ? 'ON' : 'OFF';
+    }
+
+    /* ================================================================
        PROFILE SYSTEM
     ================================================================ */
     let PROFILE_ID = 'default';
+
+    function makeProfileId() {
+      return globalThis.crypto?.randomUUID
+        ? 'p_' + crypto.randomUUID()
+        : 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    }
 
     function getProfiles() {
       try { return JSON.parse(getStorageItem('bac__profiles', 'null')) || []; }
@@ -1555,7 +1760,7 @@
     }
 
     function createProfile(name) {
-      const id = 'p_' + Date.now();
+      const id = makeProfileId();
       const profiles = getProfiles();
       profiles.push({ id, name });
       if (!saveProfiles(profiles)) return;
@@ -1641,7 +1846,7 @@
           const name = typeof payload.profileName === 'string' && payload.profileName.trim()
             ? payload.profileName.trim()
             : file.name.replace(/\.json$/i, '');
-          const id = 'p_' + Date.now();
+          const id = makeProfileId();
           const prefix = 'bac_' + id + '_';
           const entries = Object.entries(payload.data).map(([k, v]) => [prefix + k, String(v ?? '')]);
           if (!writeBatch(entries)) {
@@ -1723,7 +1928,7 @@
       const secondary = profiles.find(p => p.id === secondaryId);
       if (!primary || !secondary) return;
 
-      const newId        = 'p_' + Date.now();
+      const newId        = makeProfileId();
       const newName      = 'combinat_' + primary.name + '_' + secondary.name;
       const newPrefix    = 'bac_' + newId + '_';
       const priPrefix    = 'bac_' + primaryId + '_';
@@ -1967,6 +2172,8 @@
     function renderVariantPanel() {
       const panel = document.getElementById('variant-panel');
 
+      destroyCodeMirrors();
+
       if (!state.selectedSlug) {
         panel.classList.remove('visible', 'shown');
         setTimeout(() => { if (!state.selectedSlug) panel.innerHTML = ''; }, 210);
@@ -1988,7 +2195,10 @@
 
       restorePanel(slug);
       attachPanelListeners(slug);
-      initPdfViewer(slug);
+      if (codeThemeEnabled) {
+        loadCodeMirror(() => initCodeMirrors());
+      }
+      initPdfViewer(slug).catch(() => {});
 
       /* Trigger fade-in after two paint frames */
       requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -2283,7 +2493,7 @@
           const key = p('s1_ex' + n + '_ans');
           /* Toggle: clicking the active answer deselects it */
           const newVal = load(key) === val ? '' : val;
-          save(key, newVal);
+          if (!save(key, newVal)) return;
           document.querySelectorAll(`.btn-mcq[data-mcq-ex="${n}"]`).forEach(b => {
             b.classList.toggle('selected', b.dataset.mcqVal === newVal && newVal !== '');
           });
@@ -2296,7 +2506,7 @@
           const flagId = btn.dataset.flagId;
           const key    = lk(slug, flagId);
           const newVal = load(key, '0') === '1' ? '0' : '1';
-          save(key, newVal);
+          if (!save(key, newVal)) return;
           btn.classList.toggle('active', newVal === '1');
         });
       });
@@ -2321,7 +2531,7 @@
         terminatBtn.addEventListener('click', () => {
           const isDone = load(p('done'), '0') === '1';
           const newDone = !isDone;
-          save(p('done'), newDone ? '1' : '0');
+          if (!save(p('done'), newDone ? '1' : '0')) return;
           applyTerminatState(terminatBtn, newDone);
           /* Update the pill button in the year list directly — no full re-render */
           updatePillDoneState(slug, newDone);
@@ -2331,7 +2541,13 @@
 
     function bindTA(id, key) {
       const el = document.getElementById(id);
-      if (el) el.addEventListener('input', () => save(key, el.value));
+      if (el) {
+        el.addEventListener('input', () => {
+          if (!save(key, el.value)) {
+            el.value = load(key, '');
+          }
+        });
+      }
     }
 
     /* Update a pill button's done appearance directly in the DOM */
@@ -2413,6 +2629,11 @@
     document.addEventListener('DOMContentLoaded', renderApp);
 
     function renderApp() {
+      codeThemeEnabled = getStorageItem('bac__code_theme') === '1';
+      updateCodeThemeBtn();
+      document.getElementById('code-theme-btn').addEventListener('click', toggleCodeTheme);
+      if (codeThemeEnabled) loadCodeMirror(() => {});
+
       initProfiles();
       attachProfileListeners();
       renderYearList();
