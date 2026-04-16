@@ -918,6 +918,37 @@
     }
 
     #profile-merge-confirm:hover { opacity: 0.85; }
+
+    /* ================================================================
+       STORAGE WARNING TOAST
+    ================================================================ */
+    #storage-warning {
+      display: none;
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #2a1010;
+      border: 1px solid #e05555;
+      border-radius: var(--radius);
+      padding: 13px 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #e07070;
+      z-index: 9999;
+      max-width: 340px;
+      line-height: 1.55;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.5);
+    }
+
+    #storage-warning.visible {
+      display: block;
+      animation: sw-in 0.28s ease;
+    }
+
+    @keyframes sw-in {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
@@ -977,6 +1008,11 @@
       <div id="variant-panel"></div>
     </main>
 
+  </div>
+
+  <div id="storage-warning">
+    ⚠ Spațiu insuficient — textul nu a fost salvat.<br>
+    Exportă profilul și șterge date vechi (sau scurtează textul).
   </div>
 
   <script>
@@ -1158,7 +1194,26 @@
     /* ================================================================
        3. HELPERS
     ================================================================ */
-    function save(key, val)       { localStorage.setItem(key, val); }
+    let _storageWarnShown = false;
+    function showStorageWarning() {
+      if (_storageWarnShown) return;
+      _storageWarnShown = true;
+      const el = document.getElementById('storage-warning');
+      if (el) {
+        el.classList.add('visible');
+        setTimeout(() => { el.classList.remove('visible'); _storageWarnShown = false; }, 7000);
+      }
+    }
+
+    function save(key, val) {
+      try {
+        localStorage.setItem(key, val);
+      } catch (e) {
+        if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+          showStorageWarning();
+        }
+      }
+    }
     function load(key, def = '')  { return localStorage.getItem(key) ?? def; }
 
     /** localStorage key: bac_{profileId}_{slug}_{field} */
@@ -1687,15 +1742,7 @@
         <!-- Subiectul III -->
         <div class="section">
           <div class="section-title">Subiectul III — Problemă Complexă</div>
-          <div class="s3-header">
-            <span class="s3-label">Problemă complexă</span>
-            <div class="flag-group">
-              ${flagBtn('s3_fq',  '?',  'flag-q')}
-              ${flagBtn('s3_fai', 'AI', 'flag-ai')}
-            </div>
-          </div>
-          <textarea id="s3-txt" class="code-area-lg"
-            placeholder="Rezolvare completă / cod C++ ..."></textarea>
+          ${buildSubIIIHTML(slug)}
           <label class="notes-label" for="s3-notes">Notițe — Subiectul III</label>
           <textarea id="s3-notes" placeholder="Observații..."></textarea>
         </div>
@@ -1757,6 +1804,26 @@
       return html;
     }
 
+    /* Build Subiectul III — 3 exercise blocks */
+    function buildSubIIIHTML(slug) {
+      let html = '';
+      for (let n = 1; n <= 3; n++) {
+        html += `
+          <div class="exercise-block">
+            <div class="exercise-block-header">
+              <span class="exercise-block-title">Exercițiul ${n}</span>
+              <div class="flag-group">
+                ${flagBtn('s3_ex'+n+'_fq',  '?',  'flag-q')}
+                ${flagBtn('s3_ex'+n+'_fai', 'AI', 'flag-ai')}
+              </div>
+            </div>
+            <textarea id="s3-ex${n}-txt" class="code-area-lg"
+              placeholder="Rezolvare / cod C++ ..."></textarea>
+          </div>`;
+      }
+      return html;
+    }
+
     /** Render a flag button. flagId becomes both the element id suffix and the storage field. */
     function flagBtn(flagId, label, type) {
       return `<button class="btn-flag ${type}" id="flag-${flagId}"
@@ -1791,10 +1858,16 @@
       }
       setTA('s2-notes', load(p('s2_notes')));
 
-      /* Sub III */
-      setTA('s3-txt',   load(p('s3_txt')));
-      restoreFlag('s3_fq',  slug);
-      restoreFlag('s3_fai', slug);
+      /* Sub III — migrate old single s3_txt into ex1 if needed */
+      if (!load(p('s3_ex1_txt')) && load(p('s3_txt'))) {
+        save(p('s3_ex1_txt'), load(p('s3_txt')));
+        localStorage.removeItem(lk(slug, 's3_txt'));
+      }
+      for (let n = 1; n <= 3; n++) {
+        setTA('s3-ex' + n + '-txt', load(p('s3_ex' + n + '_txt')));
+        restoreFlag('s3_ex' + n + '_fq',  slug);
+        restoreFlag('s3_ex' + n + '_fai', slug);
+      }
       setTA('s3-notes', load(p('s3_notes')));
 
       /* General notes */
@@ -1863,7 +1936,7 @@
       bindTA('s2-notes', p('s2_notes'));
 
       /* Sub III */
-      bindTA('s3-txt',   p('s3_txt'));
+      for (let n = 1; n <= 3; n++) bindTA('s3-ex' + n + '-txt', p('s3_ex' + n + '_txt'));
       bindTA('s3-notes', p('s3_notes'));
 
       /* General notes */
